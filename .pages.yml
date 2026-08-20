@@ -15,12 +15,10 @@ content:
         type: number
         required: true
 
-               - name: image
+      - name: image
         label: Product Image
         type: image
-        options:
-          path: assets/products
-        required: true
+
       - name: description
         label: Description
         type: text
