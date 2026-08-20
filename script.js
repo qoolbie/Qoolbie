@@ -2,12 +2,33 @@ let PRODUCTS = [];
 
 async function loadProducts() {
   try {
-    const response = await fetch("content/products/2026-08-21-yuyu-egg-memo-pad.md");
-    const text = await response.text();
+    const response = await fetch("https://api.github.com/repos/qoolbie/Qoolbie/contents/content/products");
+    const files = await response.json();
 
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      PRODUCTS = [JSON.parse(match[0])];
+    const markdownFiles = files.filter(file => file.name.endsWith(".md"));
+
+    for (const file of markdownFiles) {
+      const productResponse = await fetch(file.download_url);
+      const text = await productResponse.text();
+
+      const frontmatter = text.match(/^---\s*([\s\S]*?)\s*---/);
+
+      if (!frontmatter) continue;
+
+      const data = {};
+
+      frontmatter[1].split("\n").forEach(line => {
+        const index = line.indexOf(":");
+
+        if (index === -1) return;
+
+        const key = line.slice(0, index).trim();
+        const value = line.slice(index + 1).trim();
+
+        data[key] = value.replace(/^["']|["']$/g, "");
+      });
+
+      PRODUCTS.push(data);
     }
   } catch (error) {
     console.error("Could not load products:", error);
@@ -17,65 +38,78 @@ async function loadProducts() {
   renderCart();
 }
 
-const getCart = () => JSON.parse(localStorage.getItem("qoolbieCart") || "[]");
+const getCart = () =>
+  JSON.parse(localStorage.getItem("qoolbieCart") || "[]");
 
-const saveCart = c => {
-  localStorage.setItem("qoolbieCart", JSON.stringify(c));
+const saveCart = cart => {
+  localStorage.setItem("qoolbieCart", JSON.stringify(cart));
   updateCount();
 };
 
 function updateCount() {
-  let n = getCart().reduce((s, x) => s + x.qty, 0);
-  document.querySelectorAll(".cart-count").forEach(e => e.textContent = n);
+  const count = getCart().reduce((total, item) => total + item.qty, 0);
+
+  document
+    .querySelectorAll(".cart-count")
+    .forEach(element => element.textContent = count);
 }
 
 function add(id) {
-  let c = getCart();
-  let x = c.find(i => i.id === id);
-  x ? x.qty++ : c.push({id, qty: 1});
-  saveCart(c);
+  const cart = getCart();
+  const item = cart.find(product => product.id === id);
+
+  if (item) {
+    item.qty++;
+  } else {
+    cart.push({ id, qty: 1 });
+  }
+
+  saveCart(cart);
   alert("Added to your sleepy basket ☘");
 }
 
 function remove(id) {
-  saveCart(getCart().filter(x => x.id !== id));
+  saveCart(getCart().filter(item => item.id !== id));
   renderCart();
 }
 
-function change(id, d) {
-  let c = getCart();
-  let x = c.find(i => i.id === id);
-  if (!x) return;
+function change(id, amount) {
+  const cart = getCart();
+  const item = cart.find(product => product.id === id);
 
-  x.qty += d;
+  if (!item) return;
 
-  if (x.qty < 1) {
-    c = c.filter(i => i.id !== id);
+  item.qty += amount;
+
+  if (item.qty <= 0) {
+    saveCart(cart.filter(product => product.id !== id));
+  } else {
+    saveCart(cart);
   }
 
-  saveCart(c);
   renderCart();
 }
 
 function renderProducts() {
-  let el = document.getElementById("products");
-  if (!el) return;
+  const element = document.getElementById("products");
 
-  el.innerHTML = PRODUCTS.map((p, index) => `
+  if (!element) return;
+
+  element.innerHTML = PRODUCTS.map((product, index) => `
     <article class="product">
       <div class="product-img">
-        ${p.image
-          ? `<img src="${p.image}" alt="${p.name}">`
+        ${product.image
+          ? `<img src="${product.image}" alt="${product.name}">`
           : "☘️"}
       </div>
 
-      <h2>${p.name}</h2>
+      <h2>${product.name}</h2>
 
       <div class="price">
-        £${Number(p.price).toFixed(2)}
+        £${Number(product.price).toFixed(2)}
       </div>
 
-      <span>${p.description || ""}</span>
+      <p>${product.description || ""}</p>
 
       <button onclick="add(${index})">
         add to cart ☘
@@ -85,83 +119,57 @@ function renderProducts() {
 }
 
 function renderCart() {
-  let el = document.getElementById("cart");
-  if (!el) return;
+  const element = document.getElementById("cart");
 
-  let c = getCart();
+  if (!element) return;
 
-  if (!c.length) {
-    el.innerHTML = `
+  const cart = getCart();
+
+  if (!cart.length) {
+    element.innerHTML = `
       <div class="card">
         <h2>Your basket is sleepy... 💤</h2>
         <p>There is nothing here yet.</p>
-        <a class="btn" href="shop.html">visit the shop</a>
-      </div>`;
+      </div>
+    `;
     return;
   }
 
   let total = 0;
 
-  el.innerHTML = c.map(x => {
-    let p = PRODUCTS[x.id];
-    if (!p) return "";
+  element.innerHTML = cart.map(item => {
+    const product = PRODUCTS[item.id];
 
-    let sub = Number(p.price) * x.qty;
-    total += sub;
+    if (!product) return "";
+
+    const subtotal = Number(product.price) * item.qty;
+    total += subtotal;
 
     return `
       <div class="cart-row">
         <div>
-          <b>${p.name}</b><br>
-          <small>£${Number(p.price).toFixed(2)} each</small>
+          <b>${product.name}</b><br>
+          <small>£${Number(product.price).toFixed(2)} each</small>
         </div>
 
         <div class="qty">
-          <button onclick="change(${x.id}, -1)">−</button>
-          ${x.qty}
-          <button onclick="change(${x.id}, 1)">+</button>
+          <button onclick="change(${item.id}, -1)">−</button>
+          ${item.qty}
+          <button onclick="change(${item.id}, 1)">+</button>
         </div>
 
-        <b>£${sub.toFixed(2)}</b>
+        <b>£${subtotal.toFixed(2)}</b>
 
-        <button onclick="remove(${x.id})"
-          style="background:#f6dce5;color:#31563b">
+        <button onclick="remove(${item.id})">
           remove
         </button>
-      </div>`;
+      </div>
+    `;
   }).join("") + `
     <div class="total">
       <h2>Total: £${total.toFixed(2)}</h2>
-      <a class="btn" href="checkout.html">go to checkout →</a>
-    </div>`;
-}
-
-function renderSummary() {
-  let el = document.getElementById("summary");
-  if (!el) return;
-
-  let c = getCart();
-  let total = 0;
-
-  if (!c.length) {
-    el.innerHTML =
-      '<p>Your cart is empty. <a href="shop.html"><b>Go shopping →</b></a></p>';
-    return;
-  }
-
-  el.innerHTML = c.map(x => {
-    let p = PRODUCTS[x.id];
-    if (!p) return "";
-
-    let s = Number(p.price) * x.qty;
-    total += s;
-
-    return `
-      <p>
-        ${p.name} × ${x.qty}<br>
-        <b>£${s.toFixed(2)}</b>
-      </p>`;
-  }).join("") + `<hr><h2>£${total.toFixed(2)}</h2>`;
+    </div>
+  `;
 }
 
 updateCount();
