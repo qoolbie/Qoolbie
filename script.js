@@ -3,7 +3,7 @@ const PRODUCTS = [
     id: "yuyu-egg-memo-pad",
     name: "Yuyu egg memo pad",
     price: 8,
-    image: "/Qoolbie/media/IMG_1082.jpeg",
+    image: "media/IMG_1082.jpeg",
     tag: "50 pages memo pad of yuyuhoon and its egg design"
   }
 ];
