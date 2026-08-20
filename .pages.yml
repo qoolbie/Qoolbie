@@ -1,1 +1,29 @@
-https://qoolbie.github.io/Qoolbie/yuyuhoon.html
+content:
+  - name: products
+    label: Products
+    type: collection
+    path: content/products
+    format: json
+    fields:
+      - name: name
+        label: Product Name
+        type: string
+        required: true
+
+      - name: price
+        label: Price
+        type: number
+        required: true
+
+      - name: image
+        label: Product Image
+        type: image
+        required: true
+
+      - name: description
+        label: Description
+        type: text
+
+      - name: available
+        label: Available
+        type: boolean
