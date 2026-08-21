@@ -1,7 +1,5 @@
 let PRODUCTS = [];
 
-localStorage.removeItem("qoolbieCart");
-
 const CART_KEY = "qoolbieCart";
 
 function getCart() {
@@ -25,9 +23,7 @@ function updateCartCount() {
 function imageUrl(path) {
   if (!path) return "";
 
-  if (path.startsWith("http")) {
-    return path;
-  }
+  if (path.startsWith("http")) return path;
 
   return "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + path;
 }
@@ -51,15 +47,22 @@ async function loadProducts() {
 
       if (start !== -1 && end !== -1) {
         const product = JSON.parse(text.slice(start, end + 1));
-
         product.id = file.name;
-
         PRODUCTS.push(product);
       }
     }
   } catch (error) {
     console.error("Could not load products:", error);
   }
+
+  /* Remove old/invalid basket items */
+  const validIds = new Set(PRODUCTS.map(product => product.id));
+
+  const cleanCart = getCart().filter(item =>
+    validIds.has(item.id)
+  );
+
+  saveCart(cleanCart);
 
   renderProducts();
   renderCart();
@@ -75,6 +78,7 @@ function renderProducts() {
     .filter(p => p.available !== false)
     .map(p => `
       <article class="product">
+
         <div class="product-img">
           <img
             src="${imageUrl(p.image)}"
@@ -94,6 +98,7 @@ function renderProducts() {
         <button onclick="addToCart('${p.id}')">
           add to cart ☘
         </button>
+
       </article>
     `)
     .join("");
@@ -116,8 +121,8 @@ function addToCart(id) {
   }
 
   saveCart(cart);
-
   renderCart();
+  renderSummary();
 
   alert(`${product.name} added to your sleepy basket ☘`);
 }
@@ -177,6 +182,7 @@ function renderCart() {
 
     return `
       <div class="cart-row">
+
         <div>
           <b>${product.name}</b>
           <br>
@@ -194,6 +200,7 @@ function renderCart() {
         <button onclick="removeFromCart('${item.id}')">
           remove
         </button>
+
       </div>
     `;
   }).join("") + `
@@ -237,5 +244,4 @@ function renderSummary() {
   `;
 }
 
-updateCartCount();
 loadProducts();
