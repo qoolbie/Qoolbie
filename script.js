@@ -15,8 +15,10 @@ function renderProducts() {
   el.innerHTML = PRODUCTS.map(p => `
     <article class="product">
       <div class="product-img">
-        <img src="${p.image}" alt="${p.name}">
+        <img src="${p.image}" alt="${p.name}"
+             style="max-width:100%; max-height:190px; width:auto; height:auto; object-fit:contain;">
       </div>
+
       <h2>${p.name}</h2>
       <div class="price">£${p.price.toFixed(2)}</div>
       <span>${p.tag}</span>
