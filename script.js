@@ -22,7 +22,6 @@ function updateCartCount() {
 
 function imageUrl(path) {
   if (!path) return "";
-
   if (path.startsWith("http")) return path;
 
   return "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + path;
@@ -55,7 +54,6 @@ async function loadProducts() {
     console.error("Could not load products:", error);
   }
 
-  /* Remove old/invalid basket items */
   const validIds = new Set(PRODUCTS.map(product => product.id));
 
   const cleanCart = getCart().filter(item =>
@@ -65,6 +63,7 @@ async function loadProducts() {
   saveCart(cleanCart);
 
   renderProducts();
+  renderProductDetail();
   renderCart();
   renderSummary();
   updateCartCount();
@@ -79,15 +78,19 @@ function renderProducts() {
     .map(p => `
       <article class="product">
 
-        <div class="product-img">
-          <img
-            src="${imageUrl(p.image)}"
-            alt="${p.name}"
-            style="max-width:100%;max-height:190px;width:auto;height:auto;object-fit:contain;"
-          >
-        </div>
+        <a href="product.html?id=${encodeURIComponent(p.id)}">
 
-        <h2>${p.name}</h2>
+          <div class="product-img">
+            <img
+              src="${imageUrl(p.image)}"
+              alt="${p.name}"
+              style="max-width:100%;max-height:190px;width:auto;height:auto;object-fit:contain;"
+            >
+          </div>
+
+          <h2>${p.name}</h2>
+
+        </a>
 
         <div class="price">
           £${Number(p.price).toFixed(2)}
@@ -95,13 +98,67 @@ function renderProducts() {
 
         <span>${p.description || ""}</span>
 
-        <button onclick="addToCart('${p.id}')">
+        <button onclick="event.preventDefault(); addToCart('${p.id}')">
           add to cart ☘
         </button>
 
       </article>
     `)
     .join("");
+}
+
+function renderProductDetail() {
+  const el = document.getElementById("product-detail");
+  if (!el) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  const product = PRODUCTS.find(p => p.id === id);
+
+  if (!product) {
+    el.innerHTML = `
+      <h1>product not found</h1>
+      <a class="btn" href="shop.html">back to shop</a>
+    `;
+    return;
+  }
+
+  el.innerHTML = `
+    <span class="pill">☘ from the clover shop</span>
+
+    <h1>${product.name}</h1>
+
+    <div class="two">
+
+      <div class="big-mascot">
+        <img
+          src="${imageUrl(product.image)}"
+          alt="${product.name}"
+          style="max-width:100%;max-height:380px;width:auto;height:auto;object-fit:contain;"
+        >
+      </div>
+
+      <div>
+
+        <h2>£${Number(product.price).toFixed(2)}</h2>
+
+        <p>${product.description || ""}</p>
+
+        <button onclick="addToCart('${product.id}')">
+          add to cart ☘
+        </button>
+
+        <br>
+
+        <a class="btn soft" href="shop.html">
+          ← back to shop
+        </a>
+
+      </div>
+
+    </div>
+  `;
 }
 
 function addToCart(id) {
@@ -245,60 +302,3 @@ function renderSummary() {
 }
 
 loadProducts();
-async function loadStories() {
-  const el = document.getElementById("stories");
-  if (!el) return;
-
-  try {
-    const response = await fetch(
-      "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/stories"
-    );
-
-    const files = await response.json();
-
-    const stories = [];
-
-    for (const file of files) {
-      if (!file.name.endsWith(".md")) continue;
-
-      const response = await fetch(file.download_url);
-      const text = await response.text();
-
-      const start = text.indexOf("{");
-      const end = text.lastIndexOf("}");
-
-      if (start !== -1 && end !== -1) {
-        const story = JSON.parse(text.slice(start, end + 1));
-
-        if (story.published !== false) {
-          stories.push(story);
-        }
-      }
-    }
-
-    el.innerHTML = stories.map(story => `
-      <article class="card" style="margin:25px 0;">
-        ${
-          story.image
-            ? `<img
-                src="${imageUrl(story.image)}"
-                alt="${story.title}"
-                style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
-              >`
-            : ""
-        }
-
-        <h2>${story.title}</h2>
-
-        <p class="subtitle">${story.date || ""}</p>
-
-        <p>${story.content || ""}</p>
-      </article>
-    `).join("");
-
-  } catch (error) {
-    console.error("Could not load stories:", error);
-  }
-}
-
-loadStories();
