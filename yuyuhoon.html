@@ -88,10 +88,10 @@ async function loadYuyuhoon() {
       let imagePath = yuyu.image;
 
       if (!imagePath.startsWith("http")) {
-        imagePath =
-          "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" +
-          imagePath;
-      }
+  imagePath =
+    "https://qoolbie.github.io/Qoolbie" +
+    imagePath;
+}
 
       image.src = imagePath + "?cache=" + Date.now();
 
