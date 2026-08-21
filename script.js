@@ -1,8 +1,27 @@
 let PRODUCTS = [];
 
 async function loadProducts() {
-  const response = await fetch("products.json");
-  PRODUCTS = await response.json();
+  const files = [
+    "2026-08-21-yuyu-egg-memo-pad.md",
+    "2026-08-21-yuyuhoons-life-stickers.md"
+  ];
+
+  for (const file of files) {
+    const response = await fetch(
+      `content/products/${file}`
+    );
+
+    const text = await response.text();
+
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+
+    if (start !== -1 && end !== -1) {
+      PRODUCTS.push(
+        JSON.parse(text.slice(start, end + 1))
+      );
+    }
+  }
 
   renderProducts();
 }
@@ -17,9 +36,9 @@ function renderProducts() {
       <article class="product">
         <div class="product-img">
           <img
-            src="${p.image}"
+            src="https://raw.githubusercontent.com/qoolbie/Qoolbie/main${p.image}"
             alt="${p.name}"
-            style="max-width:100%; max-height:190px; width:auto; height:auto; object-fit:contain;"
+            style="max-width:100%;max-height:190px;width:auto;height:auto;object-fit:contain;"
           >
         </div>
 
@@ -31,16 +50,12 @@ function renderProducts() {
 
         <span>${p.description || ""}</span>
 
-        <button onclick="addToCart(${index})">
+        <button onclick="alert('Added to your sleepy basket ☘')">
           add to cart ☘
         </button>
       </article>
     `)
     .join("");
-}
-
-function addToCart(index) {
-  alert("Added to your sleepy basket ☘");
 }
 
 loadProducts();
