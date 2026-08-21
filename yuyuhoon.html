@@ -29,10 +29,19 @@
 
   <h1>yuyuhoon</h1>
 
+  <p class="subtitle" id="yuyu-subtitle">
+    Loading...
+  </p>
+
   <div class="two">
 
     <div class="big-mascot">
-      ☘
+      <img
+        id="yuyu-image"
+        src=""
+        alt="Yuyuhoon"
+        style="max-width:100%;max-height:380px;width:auto;height:auto;object-fit:contain;"
+      >
     </div>
 
     <div>
@@ -56,6 +65,7 @@
 <script src="script.js"></script>
 
 <script>
+
 async function loadYuyuhoon() {
 
   try {
@@ -66,11 +76,28 @@ async function loadYuyuhoon() {
 
     const yuyu = await response.json();
 
+    document.getElementById("yuyu-subtitle").textContent =
+      yuyu.subtitle || "";
+
     document.getElementById("yuyu-introduction").textContent =
       yuyu.introduction || "";
 
+    const image = document.getElementById("yuyu-image");
+
+    if (yuyu.image) {
+
+      image.src = yuyu.image.startsWith("http")
+        ? yuyu.image
+        : "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + yuyu.image;
+
+    }
+
+    const facts = yuyu.facts || "";
+
     document.getElementById("yuyu-facts").innerHTML =
-      (yuyu.facts || [])
+      facts
+        .split("\n")
+        .filter(fact => fact.trim() !== "")
         .map(fact => `<span>${fact}</span>`)
         .join("");
 
@@ -83,6 +110,7 @@ async function loadYuyuhoon() {
 }
 
 loadYuyuhoon();
+
 </script>
 
 </body>
