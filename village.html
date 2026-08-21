@@ -29,28 +29,32 @@
 
   <h1>qoolbie village</h1>
 
-  <p class="subtitle">
-    A tiny, sleepy place full of little moments.
+  <p class="subtitle" id="village-subtitle">
+    Loading...
   </p>
 
   <div class="story">
 
     <div class="village-art">
-      ☘ 🏡 🌱
+      <img
+        id="village-image"
+        alt="Qoolbie Village"
+        style="max-width:100%;max-height:380px;width:auto;height:auto;object-fit:contain;"
+      >
     </div>
 
     <div>
+
       <h2>a little village</h2>
 
-      <p>
-        Welcome to Qoolbie Village, where tiny adventures
-        happen at their own sleepy pace.
+      <p id="village-introduction">
+        Loading...
       </p>
 
-      <p>
-        Take a walk around, meet Yuyuhoon, visit the Clover Shop,
-        and read the little stories from the village.
+      <p id="village-description">
+        Loading...
       </p>
+
     </div>
 
   </div>
@@ -60,6 +64,56 @@
 <footer>qoolbie ☘</footer>
 
 <script src="script.js"></script>
+
+<script>
+
+async function loadVillage() {
+
+  try {
+
+    const response = await fetch(
+      "https://raw.githubusercontent.com/qoolbie/Qoolbie/main/content/village.json?cache=" + Date.now()
+    );
+
+    const village = await response.json();
+
+    document.getElementById("village-subtitle").textContent =
+      village.subtitle || "";
+
+    document.getElementById("village-introduction").textContent =
+      village.introduction || "";
+
+    document.getElementById("village-description").textContent =
+      village.description || "";
+
+    const savedImage = village.image || village.ima;
+
+    if (savedImage) {
+
+      let imagePath = savedImage;
+
+      if (!imagePath.startsWith("http")) {
+        imagePath =
+          "https://qoolbie.github.io/Qoolbie" +
+          imagePath;
+      }
+
+      document.getElementById("village-image").src =
+        imagePath + "?cache=" + Date.now();
+
+    }
+
+  } catch (error) {
+
+    console.error("Could not load Village:", error);
+
+  }
+
+}
+
+loadVillage();
+
+</script>
 
 </body>
 </html>
