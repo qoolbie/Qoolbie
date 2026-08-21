@@ -2,8 +2,6 @@ let PRODUCTS = [];
 
 const CART_KEY = "qoolbieCart";
 
-/* ---------- CART ---------- */
-
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 }
@@ -22,8 +20,6 @@ function updateCartCount() {
   });
 }
 
-/* ---------- IMAGES ---------- */
-
 function imageUrl(path) {
   if (!path) return "";
   if (path.startsWith("http")) return path;
@@ -31,7 +27,7 @@ function imageUrl(path) {
   return "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + path;
 }
 
-/* ---------- PRODUCTS ---------- */
+/* PRODUCTS */
 
 async function loadProducts() {
   try {
@@ -58,7 +54,6 @@ async function loadProducts() {
         PRODUCTS.push(product);
       }
     }
-
   } catch (error) {
     console.error("Could not load products:", error);
   }
@@ -115,8 +110,6 @@ function renderProducts() {
     `)
     .join("");
 }
-
-/* ---------- PRODUCT DETAILS ---------- */
 
 function renderProductDetail() {
   const el = document.getElementById("product-detail");
@@ -181,7 +174,7 @@ function renderProductDetail() {
   `;
 }
 
-/* ---------- ADD TO CART ---------- */
+/* CART */
 
 function addToCart(id) {
   const product = PRODUCTS.find(p => p.id === id);
@@ -231,8 +224,6 @@ function changeQuantity(id, amount) {
   renderCart();
   renderSummary();
 }
-
-/* ---------- CART PAGE ---------- */
 
 function renderCart() {
   const el = document.getElementById("cart");
@@ -291,8 +282,6 @@ function renderCart() {
   `;
 }
 
-/* ---------- CHECKOUT SUMMARY ---------- */
-
 function renderSummary() {
   const el = document.getElementById("summary");
   if (!el) return;
@@ -327,7 +316,7 @@ function renderSummary() {
   `;
 }
 
-/* ---------- STORIES ---------- */
+/* STORIES */
 
 async function loadStories() {
   const el = document.getElementById("stories");
@@ -361,31 +350,38 @@ async function loadStories() {
     }
 
     el.innerHTML = stories.map(story => `
-      <article class="card" style="margin:25px 0;">
+      <a
+        href="story.html?id=${encodeURIComponent(story.id)}"
+        style="text-decoration:none;color:inherit;display:block;"
+      >
 
-        ${
-          story.image
-            ? `
-              <img
-                src="${imageUrl(story.image)}"
-                alt="${story.title}"
-                style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
-              >
-            `
-            : ""
-        }
+        <article class="card" style="margin:25px 0;">
 
-        <h2>${story.title}</h2>
+          ${
+            story.image
+              ? `
+                <img
+                  src="${imageUrl(story.image)}"
+                  alt="${story.title}"
+                  style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
+                >
+              `
+              : ""
+          }
 
-        <p class="subtitle">
-          ${story.date || ""}
-        </p>
+          <h2>${story.title}</h2>
 
-        <p>
-          ${story.content || ""}
-        </p>
+          <p class="subtitle">
+            ${story.date || ""}
+          </p>
 
-      </article>
+          <p>
+            ${story.content || ""}
+          </p>
+
+        </article>
+
+      </a>
     `).join("");
 
   } catch (error) {
@@ -393,8 +389,96 @@ async function loadStories() {
   }
 }
 
-/* ---------- START ---------- */
+/* STORY DETAIL */
+
+async function renderStoryDetail() {
+  const el = document.getElementById("story-detail");
+  if (!el) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (!id) {
+    el.innerHTML = `
+      <h1>story not found</h1>
+      <a class="btn" href="stories.html">back to stories</a>
+    `;
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/stories"
+    );
+
+    const files = await response.json();
+    const file = files.find(f => f.name === id);
+
+    if (!file) {
+      el.innerHTML = `
+        <h1>story not found</h1>
+        <a class="btn" href="stories.html">back to stories</a>
+      `;
+      return;
+    }
+
+    const response2 = await fetch(file.download_url);
+    const text = await response2.text();
+
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+
+    if (start === -1 || end === -1) {
+      throw new Error("Story data not found");
+    }
+
+    const story = JSON.parse(text.slice(start, end + 1));
+
+    el.innerHTML = `
+      <span class="pill">☘ little village story</span>
+
+      <h1>${story.title}</h1>
+
+      <p class="subtitle">
+        ${story.date || ""}
+      </p>
+
+      ${
+        story.image
+          ? `
+            <img
+              src="${imageUrl(story.image)}"
+              alt="${story.title}"
+              style="width:100%;max-height:500px;object-fit:contain;border-radius:20px;"
+            >
+          `
+          : ""
+      }
+
+      <div class="card" style="margin-top:30px;">
+        <p>${story.content || ""}</p>
+      </div>
+
+      <br>
+
+      <a class="btn soft" href="stories.html">
+        ← back to stories
+      </a>
+    `;
+
+  } catch (error) {
+    console.error("Could not load story:", error);
+
+    el.innerHTML = `
+      <h1>Could not load story</h1>
+      <a class="btn" href="stories.html">back to stories</a>
+    `;
+  }
+}
+
+/* START */
 
 loadProducts();
 loadStories();
+renderStoryDetail();
 updateCartCount();
