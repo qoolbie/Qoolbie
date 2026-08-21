@@ -56,6 +56,9 @@ content:
     path: content/yuyuhoon.json
     format: json
     fields:
+          - name: image
+        label: Yuyuhoon Image
+        type: image
       - name: subtitle
         label: Subtitle
         type: string
