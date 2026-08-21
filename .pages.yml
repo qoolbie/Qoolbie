@@ -69,4 +69,22 @@ content:
       - name: facts
         label: Facts
         type: text
-        
+
+  - name: village
+    label: Village
+    type: file
+    path: content/village.json
+    format: json
+    fields:
+      - name: image
+        label: Village Image
+        type: image
+      - name: subtitle
+        label: Subtitle
+        type: string
+      - name: introduction
+        label: Introduction
+        type: text
+      - name: description
+        label: Description
+        type: text
