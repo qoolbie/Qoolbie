@@ -57,7 +57,7 @@ content:
     path: content/yuyuhoon.json
     format: json
     fields:
-      - name: image
+      - name: ima
         label: Yuyuhoon Image
         type: image
       - name: subtitle
@@ -68,6 +68,5 @@ content:
         type: text
       - name: facts
         label: Facts
-        type: list
-        field:
-          type: string
+        type: text
+        
