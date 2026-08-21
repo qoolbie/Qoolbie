@@ -1,5 +1,7 @@
 let PRODUCTS = [];
 
+localStorage.removeItem("qoolbieCart");
+
 const CART_KEY = "qoolbieCart";
 
 function getCart() {
