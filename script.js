@@ -2,6 +2,8 @@ let PRODUCTS = [];
 
 const CART_KEY = "qoolbieCart";
 
+/* ---------- CART ---------- */
+
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 }
@@ -20,6 +22,8 @@ function updateCartCount() {
   });
 }
 
+/* ---------- IMAGES ---------- */
+
 function imageUrl(path) {
   if (!path) return "";
   if (path.startsWith("http")) return path;
@@ -27,7 +31,7 @@ function imageUrl(path) {
   return "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + path;
 }
 
-/* PRODUCTS */
+/* ---------- PRODUCTS ---------- */
 
 async function loadProducts() {
   try {
@@ -174,7 +178,7 @@ function renderProductDetail() {
   `;
 }
 
-/* CART */
+/* ---------- CART ---------- */
 
 function addToCart(id) {
   const product = PRODUCTS.find(p => p.id === id);
@@ -316,7 +320,7 @@ function renderSummary() {
   `;
 }
 
-/* STORIES */
+/* ---------- STORIES ---------- */
 
 async function loadStories() {
   const el = document.getElementById("stories");
@@ -349,47 +353,56 @@ async function loadStories() {
       }
     }
 
-    el.innerHTML = stories.map(story => `
-      <a
-        href="story.html?id=${encodeURIComponent(story.id)}"
-        style="text-decoration:none;color:inherit;display:block;"
-      >
+    el.innerHTML = stories.map(story => {
 
-        <article class="card" style="margin:25px 0;">
+      const preview = story.content
+        ? story.content.substring(0, 120) + "..."
+        : "";
 
-          ${
-            story.image
-              ? `
-                <img
-                  src="${imageUrl(story.image)}"
-                  alt="${story.title}"
-                  style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
-                >
-              `
-              : ""
-          }
+      return `
+        <a
+          href="story.html?id=${encodeURIComponent(story.id)}"
+          style="text-decoration:none;color:inherit;display:block;"
+        >
 
-          <h2>${story.title}</h2>
+          <article class="card" style="margin:25px 0;">
 
-          <p class="subtitle">
-            ${story.date || ""}
-          </p>
+            ${
+              story.image
+                ? `
+                  <img
+                    src="${imageUrl(story.image)}"
+                    alt="${story.title}"
+                    style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
+                  >
+                `
+                : ""
+            }
 
-          <p>
-            ${story.content || ""}
-          </p>
+            <h2>${story.title}</h2>
 
-        </article>
+            <p class="subtitle">
+              ${story.date || ""}
+            </p>
 
-      </a>
-    `).join("");
+            <p>
+              ${preview}
+            </p>
+
+            <strong>Read story →</strong>
+
+          </article>
+
+        </a>
+      `;
+    }).join("");
 
   } catch (error) {
     console.error("Could not load stories:", error);
   }
 }
 
-/* STORY DETAIL */
+/* ---------- STORY DETAIL ---------- */
 
 async function renderStoryDetail() {
   const el = document.getElementById("story-detail");
@@ -476,7 +489,7 @@ async function renderStoryDetail() {
   }
 }
 
-/* START */
+/* ---------- START ---------- */
 
 loadProducts();
 loadStories();
