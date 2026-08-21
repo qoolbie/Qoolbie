@@ -22,6 +22,9 @@ content:
       - name: description
         label: Description
         type: string
+      - name: details
+        label: More Details
+        type: text
       - name: available
         label: Available
         type: boolean
