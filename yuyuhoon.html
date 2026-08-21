@@ -29,10 +29,6 @@
 
   <h1>yuyuhoon</h1>
 
-  <p class="subtitle">
-    A little friend from Qoolbie Village.
-  </p>
-
   <div class="two">
 
     <div class="big-mascot">
@@ -40,17 +36,15 @@
     </div>
 
     <div>
+
       <h2>hello!</h2>
 
-      <p>
-        Welcome to Yuyuhoon's little corner of Qoolbie Village.
+      <p id="yuyu-introduction">
+        Loading Yuyuhoon...
       </p>
 
-      <div class="facts">
-        <span>☘ loves clovers</span>
-        <span>🌱 village resident</span>
-        <span>💚 tiny adventures</span>
-      </div>
+      <div class="facts" id="yuyu-facts"></div>
+
     </div>
 
   </div>
@@ -60,6 +54,36 @@
 <footer>qoolbie ☘</footer>
 
 <script src="script.js"></script>
+
+<script>
+async function loadYuyuhoon() {
+
+  try {
+
+    const response = await fetch(
+      "https://raw.githubusercontent.com/qoolbie/Qoolbie/main/content/yuyuhoon.json"
+    );
+
+    const yuyu = await response.json();
+
+    document.getElementById("yuyu-introduction").textContent =
+      yuyu.introduction || "";
+
+    document.getElementById("yuyu-facts").innerHTML =
+      (yuyu.facts || [])
+        .map(fact => `<span>${fact}</span>`)
+        .join("");
+
+  } catch (error) {
+
+    console.error("Could not load Yuyuhoon:", error);
+
+  }
+
+}
+
+loadYuyuhoon();
+</script>
 
 </body>
 </html>
