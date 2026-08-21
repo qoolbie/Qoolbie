@@ -1,26 +1,32 @@
 let PRODUCTS = [];
 
 async function loadProducts() {
-  const files = [
-    "2026-08-21-yuyu-egg-memo-pad.md",
-    "2026-08-21-yuyuhoons-life-stickers.md"
-  ];
-
-  for (const file of files) {
+  try {
     const response = await fetch(
-      `content/products/${file}`
+      "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/products"
     );
 
-    const text = await response.text();
+    const files = await response.json();
 
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
+    const productFiles = files.filter(
+      file => file.name.endsWith(".md")
+    );
 
-    if (start !== -1 && end !== -1) {
-      PRODUCTS.push(
-        JSON.parse(text.slice(start, end + 1))
-      );
+    for (const file of productFiles) {
+      const response = await fetch(file.download_url);
+      const text = await response.text();
+
+      const start = text.indexOf("{");
+      const end = text.lastIndexOf("}");
+
+      if (start !== -1 && end !== -1) {
+        PRODUCTS.push(
+          JSON.parse(text.slice(start, end + 1))
+        );
+      }
     }
+  } catch (error) {
+    console.error("Could not load products:", error);
   }
 
   renderProducts();
