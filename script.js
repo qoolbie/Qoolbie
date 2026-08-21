@@ -143,7 +143,11 @@ function renderProductDetail() {
 
         <h2>£${Number(product.price).toFixed(2)}</h2>
 
-        <p>${product.description || ""}</p>
+      <p>${product.description || ""}</p>
+
+<h2>More details</h2>
+
+<p>${product.details || ""}</p>
 
         <button onclick="addToCart('${product.id}')">
           add to cart ☘
