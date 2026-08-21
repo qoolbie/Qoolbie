@@ -306,3 +306,57 @@ function renderSummary() {
 }
 
 loadProducts();
+async function loadStories() {
+  const el = document.getElementById("stories");
+  if (!el) return;
+
+  try {
+    const response = await fetch(
+      "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/stories"
+    );
+
+    const files = await response.json();
+    const stories = [];
+
+    for (const file of files) {
+      if (!file.name.endsWith(".md")) continue;
+
+      const response = await fetch(file.download_url);
+      const text = await response.text();
+
+      const start = text.indexOf("{");
+      const end = text.lastIndexOf("}");
+
+      if (start !== -1 && end !== -1) {
+        const story = JSON.parse(text.slice(start, end + 1));
+
+        if (story.published !== false) {
+          stories.push(story);
+        }
+      }
+    }
+
+    el.innerHTML = stories.map(story => `
+      <article class="card" style="margin:25px 0;">
+        ${
+          story.image
+            ? `<img
+                src="${imageUrl(story.image)}"
+                alt="${story.title}"
+                style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
+              >`
+            : ""
+        }
+
+        <h2>${story.title}</h2>
+        <p class="subtitle">${story.date || ""}</p>
+        <p>${story.content || ""}</p>
+      </article>
+    `).join("");
+
+  } catch (error) {
+    console.error("Could not load stories:", error);
+  }
+}
+
+loadStories();
