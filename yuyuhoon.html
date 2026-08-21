@@ -83,9 +83,11 @@ async function loadYuyuhoon() {
 
     const image = document.getElementById("yuyu-image");
 
-    if (yuyu.image) {
+    const savedImage = yuyu.image || yuyu.ima;
 
-      let imagePath = yuyu.image;
+if (savedImage) {
+
+  let imagePath = savedImage;
 
       if (!imagePath.startsWith("http")) {
   imagePath =
