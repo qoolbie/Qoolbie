@@ -2,6 +2,8 @@ let PRODUCTS = [];
 
 const CART_KEY = "qoolbieCart";
 
+/* ---------- CART ---------- */
+
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 }
@@ -20,12 +22,16 @@ function updateCartCount() {
   });
 }
 
+/* ---------- IMAGES ---------- */
+
 function imageUrl(path) {
   if (!path) return "";
   if (path.startsWith("http")) return path;
 
   return "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + path;
 }
+
+/* ---------- PRODUCTS ---------- */
 
 async function loadProducts() {
   try {
@@ -34,6 +40,8 @@ async function loadProducts() {
     );
 
     const files = await response.json();
+
+    PRODUCTS = [];
 
     for (const file of files) {
       if (!file.name.endsWith(".md")) continue;
@@ -50,6 +58,7 @@ async function loadProducts() {
         PRODUCTS.push(product);
       }
     }
+
   } catch (error) {
     console.error("Could not load products:", error);
   }
@@ -107,6 +116,8 @@ function renderProducts() {
     .join("");
 }
 
+/* ---------- PRODUCT DETAILS ---------- */
+
 function renderProductDetail() {
   const el = document.getElementById("product-detail");
   if (!el) return;
@@ -143,11 +154,16 @@ function renderProductDetail() {
 
         <h2>£${Number(product.price).toFixed(2)}</h2>
 
-      <p>${product.description || ""}</p>
+        <p>${product.description || ""}</p>
 
-<h2>More details</h2>
-
-<p>${product.details || ""}</p>
+        ${
+          product.details
+            ? `
+              <h2>More details</h2>
+              <p>${product.details}</p>
+            `
+            : ""
+        }
 
         <button onclick="addToCart('${product.id}')">
           add to cart ☘
@@ -164,6 +180,8 @@ function renderProductDetail() {
     </div>
   `;
 }
+
+/* ---------- ADD TO CART ---------- */
 
 function addToCart(id) {
   const product = PRODUCTS.find(p => p.id === id);
@@ -213,6 +231,8 @@ function changeQuantity(id, amount) {
   renderCart();
   renderSummary();
 }
+
+/* ---------- CART PAGE ---------- */
 
 function renderCart() {
   const el = document.getElementById("cart");
@@ -271,6 +291,8 @@ function renderCart() {
   `;
 }
 
+/* ---------- CHECKOUT SUMMARY ---------- */
+
 function renderSummary() {
   const el = document.getElementById("summary");
   if (!el) return;
@@ -305,7 +327,8 @@ function renderSummary() {
   `;
 }
 
-loadProducts();
+/* ---------- STORIES ---------- */
+
 async function loadStories() {
   const el = document.getElementById("stories");
   if (!el) return;
@@ -331,6 +354,7 @@ async function loadStories() {
         const story = JSON.parse(text.slice(start, end + 1));
 
         if (story.published !== false) {
+          story.id = file.name;
           stories.push(story);
         }
       }
@@ -338,19 +362,29 @@ async function loadStories() {
 
     el.innerHTML = stories.map(story => `
       <article class="card" style="margin:25px 0;">
+
         ${
           story.image
-            ? `<img
+            ? `
+              <img
                 src="${imageUrl(story.image)}"
                 alt="${story.title}"
                 style="width:100%;max-height:400px;object-fit:contain;border-radius:20px;"
-              >`
+              >
+            `
             : ""
         }
 
         <h2>${story.title}</h2>
-        <p class="subtitle">${story.date || ""}</p>
-        <p>${story.content || ""}</p>
+
+        <p class="subtitle">
+          ${story.date || ""}
+        </p>
+
+        <p>
+          ${story.content || ""}
+        </p>
+
       </article>
     `).join("");
 
@@ -359,4 +393,8 @@ async function loadStories() {
   }
 }
 
+/* ---------- START ---------- */
+
+loadProducts();
 loadStories();
+updateCartCount();
