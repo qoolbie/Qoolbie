@@ -1,5 +1,35 @@
 let PRODUCTS = [];
 
+const CART_KEY = "qoolbieCart";
+
+function getCart() {
+  return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+}
+
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  updateCartCount();
+}
+
+function updateCartCount() {
+  const cart = getCart();
+  const count = cart.reduce((total, item) => total + item.qty, 0);
+
+  document.querySelectorAll(".cart-count").forEach(el => {
+    el.textContent = count;
+  });
+}
+
+function imageUrl(path) {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return "https://raw.githubusercontent.com/qoolbie/Qoolbie/main" + path;
+}
+
 async function loadProducts() {
   try {
     const response = await fetch(
@@ -8,11 +38,9 @@ async function loadProducts() {
 
     const files = await response.json();
 
-    const productFiles = files.filter(
-      file => file.name.endsWith(".md")
-    );
+    for (const file of files) {
+      if (!file.name.endsWith(".md")) continue;
 
-    for (const file of productFiles) {
       const response = await fetch(file.download_url);
       const text = await response.text();
 
@@ -20,9 +48,11 @@ async function loadProducts() {
       const end = text.lastIndexOf("}");
 
       if (start !== -1 && end !== -1) {
-        PRODUCTS.push(
-          JSON.parse(text.slice(start, end + 1))
-        );
+        const product = JSON.parse(text.slice(start, end + 1));
+
+        product.id = file.name;
+
+        PRODUCTS.push(product);
       }
     }
   } catch (error) {
@@ -30,6 +60,9 @@ async function loadProducts() {
   }
 
   renderProducts();
+  renderCart();
+  renderSummary();
+  updateCartCount();
 }
 
 function renderProducts() {
@@ -38,11 +71,11 @@ function renderProducts() {
 
   el.innerHTML = PRODUCTS
     .filter(p => p.available !== false)
-    .map((p, index) => `
+    .map(p => `
       <article class="product">
         <div class="product-img">
           <img
-            src="https://raw.githubusercontent.com/qoolbie/Qoolbie/main${p.image}"
+            src="${imageUrl(p.image)}"
             alt="${p.name}"
             style="max-width:100%;max-height:190px;width:auto;height:auto;object-fit:contain;"
           >
@@ -56,7 +89,7 @@ function renderProducts() {
 
         <span>${p.description || ""}</span>
 
-        <button onclick="alert('Added to your sleepy basket ☘')">
+        <button onclick="addToCart('${p.id}')">
           add to cart ☘
         </button>
       </article>
@@ -64,4 +97,143 @@ function renderProducts() {
     .join("");
 }
 
+function addToCart(id) {
+  const product = PRODUCTS.find(p => p.id === id);
+  if (!product) return;
+
+  const cart = getCart();
+  const existing = cart.find(item => item.id === id);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: id,
+      qty: 1
+    });
+  }
+
+  saveCart(cart);
+
+  renderCart();
+
+  alert(`${product.name} added to your sleepy basket ☘`);
+}
+
+function removeFromCart(id) {
+  const cart = getCart().filter(item => item.id !== id);
+
+  saveCart(cart);
+  renderCart();
+  renderSummary();
+}
+
+function changeQuantity(id, amount) {
+  const cart = getCart();
+  const item = cart.find(item => item.id === id);
+
+  if (!item) return;
+
+  item.qty += amount;
+
+  if (item.qty <= 0) {
+    removeFromCart(id);
+    return;
+  }
+
+  saveCart(cart);
+  renderCart();
+  renderSummary();
+}
+
+function renderCart() {
+  const el = document.getElementById("cart");
+  if (!el) return;
+
+  const cart = getCart();
+
+  if (cart.length === 0) {
+    el.innerHTML = `
+      <div class="card">
+        <h2>Your basket is sleepy... 💤</h2>
+        <p>There is nothing here yet.</p>
+        <a class="btn" href="shop.html">visit the shop</a>
+      </div>
+    `;
+    return;
+  }
+
+  let total = 0;
+
+  el.innerHTML = cart.map(item => {
+    const product = PRODUCTS.find(p => p.id === item.id);
+
+    if (!product) return "";
+
+    const subtotal = Number(product.price) * item.qty;
+    total += subtotal;
+
+    return `
+      <div class="cart-row">
+        <div>
+          <b>${product.name}</b>
+          <br>
+          <small>£${Number(product.price).toFixed(2)} each</small>
+        </div>
+
+        <div class="qty">
+          <button onclick="changeQuantity('${item.id}', -1)">−</button>
+          ${item.qty}
+          <button onclick="changeQuantity('${item.id}', 1)">+</button>
+        </div>
+
+        <b>£${subtotal.toFixed(2)}</b>
+
+        <button onclick="removeFromCart('${item.id}')">
+          remove
+        </button>
+      </div>
+    `;
+  }).join("") + `
+    <div class="total">
+      <h2>Total: £${total.toFixed(2)}</h2>
+    </div>
+  `;
+}
+
+function renderSummary() {
+  const el = document.getElementById("summary");
+  if (!el) return;
+
+  const cart = getCart();
+
+  if (cart.length === 0) {
+    el.innerHTML = "<p>Your cart is empty.</p>";
+    return;
+  }
+
+  let total = 0;
+
+  el.innerHTML = cart.map(item => {
+    const product = PRODUCTS.find(p => p.id === item.id);
+
+    if (!product) return "";
+
+    const subtotal = Number(product.price) * item.qty;
+    total += subtotal;
+
+    return `
+      <p>
+        ${product.name} × ${item.qty}
+        <br>
+        <b>£${subtotal.toFixed(2)}</b>
+      </p>
+    `;
+  }).join("") + `
+    <hr>
+    <h2>£${total.toFixed(2)}</h2>
+  `;
+}
+
+updateCartCount();
 loadProducts();
