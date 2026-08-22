@@ -88,3 +88,30 @@ content:
       - name: description
         label: Description
         type: text
+  - name: home
+    label: Home
+    type: file
+    path: content/home.json
+    format: json
+    fields:
+      - name: image
+        label: Yuyu Image
+        type: image
+      - name: welcome
+        label: Welcome Label
+        type: string
+      - name: greeting
+        label: Greeting
+        type: string
+      - name: introduction
+        label: Introduction
+        type: text
+      - name: yuyuhoonText
+        label: Yuyuhoon Card
+        type: string
+      - name: shopText
+        label: Shop Card
+        type: string
+      - name: storiesText
+        label: Stories Card
+        type: string
