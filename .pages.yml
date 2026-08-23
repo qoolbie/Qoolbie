@@ -88,6 +88,7 @@ content:
       - name: description
         label: Description
         type: text
+
   - name: home
     label: Home
     type: file
@@ -106,12 +107,30 @@ content:
       - name: introduction
         label: Introduction
         type: text
+      - name: mascotText
+        label: Mascot Text
+        type: string
+      - name: shopButton
+        label: Shop Button
+        type: string
+      - name: storiesButton
+        label: Stories Button
+        type: string
+      - name: yuyuhoonTitle
+        label: Yuyuhoon Card Title
+        type: string
       - name: yuyuhoonText
-        label: Yuyuhoon Card
+        label: Yuyuhoon Card Text
+        type: string
+      - name: shopTitle
+        label: Shop Card Title
         type: string
       - name: shopText
-        label: Shop Card
+        label: Shop Card Text
+        type: string
+      - name: storiesTitle
+        label: Stories Card Title
         type: string
       - name: storiesText
-        label: Stories Card
+        label: Stories Card Text
         type: string
