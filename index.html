@@ -41,18 +41,28 @@
       </p>
 
       <div class="buttons">
-        <a class="btn" href="shop.html">visit the shop ☘</a>
-        <a class="btn soft" href="stories.html">read stories</a>
+        <a class="btn" id="home-shop-button" href="shop.html">
+          Loading...
+        </a>
+
+        <a class="btn soft" id="home-stories-button" href="stories.html">
+          Loading...
+        </a>
       </div>
     </div>
 
     <div class="mascot">
+
       <img
         id="home-image"
         alt="Yuyu"
         style="max-width:100%;max-height:380px;width:auto;height:auto;object-fit:contain;"
       >
-      <small>yuyu says hello!</small>
+
+      <small id="home-mascot-text">
+        Loading...
+      </small>
+
     </div>
 
   </section>
@@ -60,17 +70,17 @@
   <section class="home-cards">
 
     <a href="yuyuhoon.html">
-      <b>🌱 meet yuyuhoon</b>
+      <b id="home-yuyuhoon-title">Loading...</b>
       <span id="home-yuyuhoon"></span>
     </a>
 
     <a href="shop.html">
-      <b>🛍️ clover shop</b>
+      <b id="home-shop-title">Loading...</b>
       <span id="home-shop"></span>
     </a>
 
     <a href="stories.html">
-      <b>📖 village stories</b>
+      <b id="home-stories-title">Loading...</b>
       <span id="home-stories"></span>
     </a>
 
@@ -103,11 +113,29 @@ async function loadHome() {
     document.getElementById("home-introduction").textContent =
       home.introduction || "";
 
+    document.getElementById("home-mascot-text").textContent =
+      home.mascotText || "";
+
+    document.getElementById("home-shop-button").textContent =
+      home.shopButton || "";
+
+    document.getElementById("home-stories-button").textContent =
+      home.storiesButton || "";
+
+    document.getElementById("home-yuyuhoon-title").textContent =
+      home.yuyuhoonTitle || "";
+
     document.getElementById("home-yuyuhoon").textContent =
       home.yuyuhoonText || "";
 
+    document.getElementById("home-shop-title").textContent =
+      home.shopTitle || "";
+
     document.getElementById("home-shop").textContent =
       home.shopText || "";
+
+    document.getElementById("home-stories-title").textContent =
+      home.storiesTitle || "";
 
     document.getElementById("home-stories").textContent =
       home.storiesText || "";
@@ -125,7 +153,7 @@ async function loadHome() {
       }
 
       document.getElementById("home-image").src =
-        imagePath + "?cache=" + Date.now();
+        encodeURI(imagePath) + "?cache=" + Date.now();
 
     }
 
