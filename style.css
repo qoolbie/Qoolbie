@@ -961,3 +961,39 @@ footer {
 .nav-links {
   gap: 30px;
 }
+/* remove purple mascot background */
+.mascot {
+  background: transparent;
+  overflow: visible;
+  transform: none;
+}
+
+/* make Yuyu a soft organic circle */
+.mascot img {
+  width: 390px;
+  height: 390px;
+  max-width: 78%;
+
+  object-fit: cover;
+
+  border-radius:
+    50% 47% 53% 48% /
+    47% 53% 48% 52%;
+
+  border: none;
+
+  box-shadow: none;
+
+  transform: rotate(-2deg);
+}
+
+/* keep the little decorations */
+.mascot-stars {
+  left: 25px;
+  top: 45px;
+}
+
+.mascot-cloud {
+  right: 25px;
+  top: 35px;
+}
