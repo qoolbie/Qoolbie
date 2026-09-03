@@ -2,172 +2,198 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>qoolbie</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Qoolbie Village ☘</title>
+
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 
 <body>
 
-<nav>
-  <a class="logo" href="index.html">q<span>oo</span>lbie</a>
-
-  <div>
-    <a href="yuyuhoon.html">Yuyuhoon</a>
-    <a href="shop.html">Clover Shop</a>
-    <a href="village.html">Village</a>
-    <a href="stories.html">Stories</a>
-    <a href="cart.html">
-      Cart <span class="cart-count">0</span>
+  <nav>
+    <a href="index.html" class="logo">
+      qoolbie<span>☘</span>
     </a>
-  </div>
-</nav>
-
-<main>
-
-  <section class="hero">
 
     <div>
-      <span class="pill" id="home-welcome">
-        Loading...
-      </span>
+      <a href="yuyuhoon.html">Yuyuhoon</a>
+      <a href="shop.html">Clover Shop</a>
+      <a href="village.html">Village</a>
+      <a href="cart.html">Cart <span class="cart-count">0</span></a>
+    </div>
+  </nav>
 
-      <h1 id="home-greeting">
-        Loading...
-      </h1>
+  <main>
 
-      <p id="home-introduction">
-        Loading...
-      </p>
+    <section class="hero">
 
-      <div class="buttons">
-        <a class="btn" id="home-shop-button" href="shop.html">
-          Loading...
-        </a>
+      <div>
+        <span class="pill" id="welcome">☘ welcome to qoolbie village</span>
 
-        <a class="btn soft" id="home-stories-button" href="stories.html">
-          Loading...
-        </a>
+        <h1 id="greeting">
+          hello, i'm yuyu.
+        </h1>
+
+        <p id="introduction">
+          Welcome to my little corner of the internet — a sleepy village full of tiny stories and treasures.
+        </p>
+
+        <div class="buttons">
+          <a href="shop.html" class="btn" id="shopButton">
+            visit the shop ☘
+          </a>
+
+          <a href="village.html" class="btn soft" id="storiesButton">
+            read stories
+          </a>
+        </div>
       </div>
-    </div>
 
-    <div class="mascot">
+      <div class="mascot">
 
-      <img
-        id="home-image"
-        alt="Yuyu"
-        style="max-width:100%;max-height:380px;width:auto;height:auto;object-fit:contain;"
-      >
+        <img
+          id="homeImage"
+          src=""
+          alt="Yuyuhoon"
+          style="max-width: 85%; max-height: 330px; object-fit: contain;"
+        >
 
-      <small id="home-mascot-text">
-        Loading...
-      </small>
+        <small id="mascotText">
+          yuyu says hello!
+        </small>
 
-    </div>
+      </div>
 
-  </section>
+    </section>
 
-  <section class="home-cards">
 
-    <a href="yuyuhoon.html">
-      <b id="home-yuyuhoon-title">Loading...</b>
-      <span id="home-yuyuhoon"></span>
-    </a>
+    <section class="home-cards">
 
-    <a href="shop.html">
-      <b id="home-shop-title">Loading...</b>
-      <span id="home-shop"></span>
-    </a>
+      <a href="yuyuhoon.html">
+        <b id="yuyuhoonTitle">🌱 meet yuyuhoon</b>
+        <span id="yuyuhoonText">
+          Learn about our little friend.
+        </span>
+      </a>
 
-    <a href="stories.html">
-      <b id="home-stories-title">Loading...</b>
-      <span id="home-stories"></span>
-    </a>
+      <a href="shop.html">
+        <b id="shopTitle">🛍️ clover shop</b>
+        <span id="shopText">
+          Find tiny treasures from the village.
+        </span>
+      </a>
 
-  </section>
+      <a href="village.html">
+        <b id="storiesTitle">📖 village stories</b>
+        <span id="storiesText">
+          Read little moments from Qoolbie.
+        </span>
+      </a>
 
-</main>
+    </section>
 
-<footer>qoolbie ☘</footer>
+  </main>
 
-<script src="script.js"></script>
 
-<script>
+  <footer>
+    qoolbie ☘
+  </footer>
 
-async function loadHome() {
 
-  try {
+  <script>
 
-    const response = await fetch(
-      "https://raw.githubusercontent.com/qoolbie/Qoolbie/main/content/home.json?cache=" + Date.now()
-    );
+    async function loadHome() {
 
-    const home = await response.json();
+      try {
 
-    document.getElementById("home-welcome").textContent =
-      home.welcome || "";
+        const response = await fetch(
+          "https://raw.githubusercontent.com/qoolbie/Qoolbie/main/content/home.json"
+        );
 
-    document.getElementById("home-greeting").textContent =
-      home.greeting || "";
+        const home = await response.json();
 
-    document.getElementById("home-introduction").textContent =
-      home.introduction || "";
 
-    document.getElementById("home-mascot-text").textContent =
-      home.mascotText || "";
+        if (home.welcome) {
+          document.getElementById("welcome").textContent = home.welcome;
+        }
 
-    document.getElementById("home-shop-button").textContent =
-      home.shopButton || "";
+        if (home.greeting) {
+          document.getElementById("greeting").textContent = home.greeting;
+        }
 
-    document.getElementById("home-stories-button").textContent =
-      home.storiesButton || "";
+        if (home.introduction) {
+          document.getElementById("introduction").textContent = home.introduction;
+        }
 
-    document.getElementById("home-yuyuhoon-title").textContent =
-      home.yuyuhoonTitle || "";
+        if (home.mascotText) {
+          document.getElementById("mascotText").textContent = home.mascotText;
+        }
 
-    document.getElementById("home-yuyuhoon").textContent =
-      home.yuyuhoonText || "";
+        if (home.shopButton) {
+          document.getElementById("shopButton").textContent = home.shopButton;
+        }
 
-    document.getElementById("home-shop-title").textContent =
-      home.shopTitle || "";
+        if (home.storiesButton) {
+          document.getElementById("storiesButton").textContent = home.storiesButton;
+        }
 
-    document.getElementById("home-shop").textContent =
-      home.shopText || "";
 
-    document.getElementById("home-stories-title").textContent =
-      home.storiesTitle || "";
+        if (home.yuyuhoonTitle) {
+          document.getElementById("yuyuhoonTitle").textContent = home.yuyuhoonTitle;
+        }
 
-    document.getElementById("home-stories").textContent =
-      home.storiesText || "";
+        if (home.yuyuhoonText) {
+          document.getElementById("yuyuhoonText").textContent = home.yuyuhoonText;
+        }
 
-    const savedImage = home.image || home.ima;
+        if (home.shopTitle) {
+          document.getElementById("shopTitle").textContent = home.shopTitle;
+        }
 
-    if (savedImage) {
+        if (home.shopText) {
+          document.getElementById("shopText").textContent = home.shopText;
+        }
 
-      let imagePath = savedImage;
+        if (home.storiesTitle) {
+          document.getElementById("storiesTitle").textContent = home.storiesTitle;
+        }
 
-      if (!imagePath.startsWith("http")) {
-        imagePath =
-          "https://qoolbie.github.io/Qoolbie" +
-          imagePath;
+        if (home.storiesText) {
+          document.getElementById("storiesText").textContent = home.storiesText;
+        }
+
+
+        const imagePath = home.image || home.ima;
+
+        if (imagePath) {
+
+          const image = document.getElementById("homeImage");
+
+          let imageUrl = imagePath;
+
+          if (imagePath.startsWith("/")) {
+            imageUrl =
+              "https://qoolbie.github.io/Qoolbie" +
+              encodeURI(imagePath);
+          }
+
+          image.src = imageUrl;
+
+        }
+
+      } catch (error) {
+
+        console.error("Could not load home content:", error);
+
       }
-
-      document.getElementById("home-image").src =
-        encodeURI(imagePath) + "?cache=" + Date.now();
 
     }
 
-  } catch (error) {
 
-    console.error("Could not load Home:", error);
+    loadHome();
 
-  }
-
-}
-
-loadHome();
-
-</script>
+  </script>
 
 </body>
 </html>
