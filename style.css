@@ -957,3 +957,7 @@ footer {
       1fr 1fr;
   }
 }
+/* extra space between navigation words */
+.nav-links {
+  gap: 30px;
+}
