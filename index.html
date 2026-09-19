@@ -1,14 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Qoolbie Village ☘</title>
-
   <link rel="stylesheet" href="style.css?v=3">
 </head>
-
 <body>
 
   <nav>
@@ -20,34 +18,27 @@
       <a href="yuyuhoon.html">Yuyuhoon</a>
       <a href="shop.html">Clover Shop</a>
       <a href="village.html">Village</a>
+      <a href="village.html">Stories</a>
       <a href="cart.html">
         Cart <span class="cart-count">0</span>
       </a>
     </div>
   </nav>
 
-
   <main>
-
     <section class="hero">
-
-      <!-- LEFT SIDE -->
       <div class="hero-copy">
-
         <span class="pill" id="welcome">
           ☘ welcome to qoolbie village
         </span>
 
-        <h1 id="greeting">
-          hello, i'm yuyu.
-        </h1>
+        <h1 id="greeting">hello, i'm yuyu.</h1>
 
         <p id="introduction">
           Welcome to my little corner of the internet — a sleepy village full of tiny stories and treasures.
         </p>
 
         <div class="buttons">
-
           <a href="shop.html" class="btn" id="shopButton">
             visit the shop ☘
           </a>
@@ -55,118 +46,57 @@
           <a href="village.html" class="btn soft" id="storiesButton">
             read stories
           </a>
-
         </div>
-
       </div>
 
-
-      <!-- RIGHT SIDE -->
       <div class="mascot">
-
         <div class="mascot-stars">✦</div>
-
         <div class="mascot-cloud">☁</div>
 
-        <img
-          id="homeImage"
-          src=""
-          alt="Yuyuhoon"
-        >
+        <img id="homeImage" src="" alt="Yuyuhoon">
 
-        <small id="mascotText">
-          yuyu says hello! 💚
-        </small>
-
+        <small id="mascotText">yuyu says hello! 💚</small>
         <div class="mascot-star-bottom">✦</div>
-
       </div>
-
     </section>
-
-
-    <!-- THREE CARDS -->
 
     <section class="home-cards">
-
       <a href="yuyuhoon.html">
-
-        <div class="card-icon green-icon">
-          🌱
-        </div>
-
+        <div class="card-icon green-icon">🌱</div>
         <div>
-          <b id="yuyuhoonTitle">
-            meet yuyuhoon
-          </b>
-
-          <span id="yuyuhoonText">
-            Learn about our little friend.
-          </span>
+          <b id="yuyuhoonTitle">meet yuyuhoon</b>
+          <span id="yuyuhoonText">Learn about our little friend.</span>
         </div>
-
       </a>
-
 
       <a href="shop.html">
-
-        <div class="card-icon pink-icon">
-          🛍️
-        </div>
-
+        <div class="card-icon pink-icon">🛍️</div>
         <div>
-          <b id="shopTitle">
-            clover shop
-          </b>
-
-          <span id="shopText">
-            Find tiny treasures from the village.
-          </span>
+          <b id="shopTitle">clover shop</b>
+          <span id="shopText">Find tiny treasures from the village.</span>
         </div>
-
       </a>
-
 
       <a href="village.html">
-
-        <div class="card-icon purple-icon">
-          📖
-        </div>
-
+        <div class="card-icon purple-icon">📖</div>
         <div>
-          <b id="storiesTitle">
-            village stories
-          </b>
-
-          <span id="storiesText">
-            Read little moments from Qoolbie.
-          </span>
+          <b id="storiesTitle">village stories</b>
+          <span id="storiesText">Read little moments from Qoolbie.</span>
         </div>
-
       </a>
-
     </section>
-
   </main>
 
-
-  <footer>
-    qoolbie ☘
-  </footer>
-
+  <footer>qoolbie ☘</footer>
 
   <script>
-
     async function loadHome() {
-
       try {
-
         const response = await fetch(
           "https://raw.githubusercontent.com/qoolbie/Qoolbie/main/content/home.json"
         );
 
         const home = await response.json();
-
 
         if (home.welcome) {
           document.getElementById("welcome").textContent = home.welcome;
@@ -192,72 +122,50 @@
           document.getElementById("storiesButton").textContent = home.storiesButton;
         }
 
-
         if (home.yuyuhoonTitle) {
-          document.getElementById("yuyuhoonTitle").textContent =
-            home.yuyuhoonTitle;
+          document.getElementById("yuyuhoonTitle").textContent = home.yuyuhoonTitle;
         }
 
         if (home.yuyuhoonText) {
-          document.getElementById("yuyuhoonText").textContent =
-            home.yuyuhoonText;
+          document.getElementById("yuyuhoonText").textContent = home.yuyuhoonText;
         }
 
         if (home.shopTitle) {
-          document.getElementById("shopTitle").textContent =
-            home.shopTitle;
+          document.getElementById("shopTitle").textContent = home.shopTitle;
         }
 
         if (home.shopText) {
-          document.getElementById("shopText").textContent =
-            home.shopText;
+          document.getElementById("shopText").textContent = home.shopText;
         }
 
         if (home.storiesTitle) {
-          document.getElementById("storiesTitle").textContent =
-            home.storiesTitle;
+          document.getElementById("storiesTitle").textContent = home.storiesTitle;
         }
 
         if (home.storiesText) {
-          document.getElementById("storiesText").textContent =
-            home.storiesText;
+          document.getElementById("storiesText").textContent = home.storiesText;
         }
-
 
         const imagePath = home.image || home.ima;
 
         if (imagePath) {
-
           const image = document.getElementById("homeImage");
-
           let imageUrl = imagePath;
 
           if (imagePath.startsWith("/")) {
-
             imageUrl =
               "https://qoolbie.github.io/Qoolbie" +
               encodeURI(imagePath);
-
           }
 
           image.src = imageUrl;
         }
-
-
       } catch (error) {
-
-        console.error(
-          "Could not load home content:",
-          error
-        );
-
+        console.error("Could not load home content:", error);
       }
-
     }
 
-
     loadHome();
-
   </script>
 
 </body>
