@@ -3,5 +3,8 @@
   "date": "2026-08-21",
   "image": "/media/IMG_1082.jpeg",
   "content": "Welcome to Qoolbie Village! This is our first little story from the village. ☘️",
+  "images": [
+    "/media/IMG_1330.png"
+  ],
   "published": true
 }
