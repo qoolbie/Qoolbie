@@ -1,3 +1,4 @@
+
 media:
   input: media
   output: /media
@@ -42,8 +43,15 @@ content:
         label: Date
         type: date
       - name: image
-        label: Story Image
+        label: Story Cover Picture
         type: image
+      - name: images
+        label: Extra Story Pictures
+        type: list
+        fields:
+          - name: image
+            label: Picture
+            type: image
       - name: content
         label: Story
         type: text
