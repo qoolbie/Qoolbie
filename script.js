@@ -322,39 +322,44 @@ function renderSummary() {
 
 /* ---------- STORIES ---------- */
 
+async function getStories() {
+  const response = await fetch(
+    "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/stories"
+  );
+
+  const files = await response.json();
+  const stories = [];
+
+  for (const file of files) {
+    if (!file.name.endsWith(".md")) continue;
+
+    const storyResponse = await fetch(file.download_url);
+    const text = await storyResponse.text();
+
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+
+    if (start !== -1 && end !== -1) {
+      const story = JSON.parse(text.slice(start, end + 1));
+
+      if (story.published !== false) {
+        story.id = file.name;
+        stories.push(story);
+      }
+    }
+  }
+
+  return stories;
+}
+
 async function loadStories() {
   const el = document.getElementById("stories");
   if (!el) return;
 
   try {
-    const response = await fetch(
-      "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/stories"
-    );
-
-    const files = await response.json();
-    const stories = [];
-
-    for (const file of files) {
-      if (!file.name.endsWith(".md")) continue;
-
-      const response = await fetch(file.download_url);
-      const text = await response.text();
-
-      const start = text.indexOf("{");
-      const end = text.lastIndexOf("}");
-
-      if (start !== -1 && end !== -1) {
-        const story = JSON.parse(text.slice(start, end + 1));
-
-        if (story.published !== false) {
-          story.id = file.name;
-          stories.push(story);
-        }
-      }
-    }
+    const stories = await getStories();
 
     el.innerHTML = stories.map(story => {
-
       const preview = story.content
         ? story.content.substring(0, 120) + "..."
         : "";
@@ -385,9 +390,7 @@ async function loadStories() {
               ${story.date || ""}
             </p>
 
-            <p>
-              ${preview}
-            </p>
+            <p>${preview}</p>
 
             <strong>Read story →</strong>
 
@@ -420,14 +423,10 @@ async function renderStoryDetail() {
   }
 
   try {
-    const response = await fetch(
-      "https://api.github.com/repos/qoolbie/Qoolbie/contents/content/stories"
-    );
+    const stories = await getStories();
+    const story = stories.find(story => story.id === id);
 
-    const files = await response.json();
-    const file = files.find(f => f.name === id);
-
-    if (!file) {
+    if (!story) {
       el.innerHTML = `
         <h1>story not found</h1>
         <a class="btn" href="stories.html">back to stories</a>
@@ -435,17 +434,28 @@ async function renderStoryDetail() {
       return;
     }
 
-    const response2 = await fetch(file.download_url);
-    const text = await response2.text();
+    // Start with the cover image, then add any extra images.
+    const extraImages = Array.isArray(story.images)
+      ? story.images
+      : [];
 
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
+    const allImages = [
+      story.image,
+      ...extraImages.map(item =>
+        typeof item === "string" ? item : item?.image
+      )
+    ].filter(Boolean);
 
-    if (start === -1 || end === -1) {
-      throw new Error("Story data not found");
-    }
+    // Avoid displaying the same image twice.
+    const uniqueImages = [...new Set(allImages)];
 
-    const story = JSON.parse(text.slice(start, end + 1));
+    const gallery = uniqueImages.map((image, index) => `
+      <img
+        src="${imageUrl(image)}"
+        alt="${story.title} — picture ${index + 1}"
+        style="width:100%;max-height:500px;object-fit:contain;border-radius:20px;margin:12px 0;"
+      >
+    `).join("");
 
     el.innerHTML = `
       <span class="pill">☘ little village story</span>
@@ -456,20 +466,10 @@ async function renderStoryDetail() {
         ${story.date || ""}
       </p>
 
-      ${
-        story.image
-          ? `
-            <img
-              src="${imageUrl(story.image)}"
-              alt="${story.title}"
-              style="width:100%;max-height:500px;object-fit:contain;border-radius:20px;"
-            >
-          `
-          : ""
-      }
+      ${gallery}
 
       <div class="card" style="margin-top:30px;">
-        <p>${story.content || ""}</p>
+        <p style="white-space:pre-line;">${story.content || ""}</p>
       </div>
 
       <br>
