@@ -45,13 +45,16 @@ content:
       - name: image
         label: Story Cover Picture
         type: image
+      - name: content
+        label: Full Story
+        type: text
       - name: images
         label: Extra Story Pictures
-        type: list
-        fields:
-          - name: image
-            label: Picture
-            type: image
+        type: image
+        list: true
+      - name: published
+        label: Published
+        type: boolean
       - name: content
         label: Story
         type: text
