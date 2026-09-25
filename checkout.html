@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -12,20 +11,15 @@
 
 <nav>
   <a class="logo" href="index.html">q<span>oo</span>lbie</a>
-
   <div>
     <a href="shop.html">Clover Shop</a>
-    <a href="stories.html">Stories</a>
-    <a href="cart.html">
-      Cart <span class="cart-count">0</span>
-    </a>
+    <a href="cart.html">Cart <span class="cart-count">0</span></a>
   </div>
 </nav>
 
 <main class="page">
 
   <span class="pill">☘ sleepy checkout</span>
-
   <h1>checkout</h1>
 
   <div class="checkout">
@@ -36,155 +30,71 @@
 
       <label>
         Name
-        <input
-          required
-          name="name"
-          placeholder="Your name"
-        >
+        <input required name="name" placeholder="Your name">
       </label>
 
       <label>
         Email
-        <input
-          required
-          type="email"
-          name="email"
-          placeholder="you@example.com"
-        >
+        <input required type="email" name="email" placeholder="you@example.com">
       </label>
 
       <label>
         Address
-        <textarea
-          required
-          name="address"
-          placeholder="House number and street"
-        ></textarea>
+        <textarea required name="address" placeholder="Shipping address"></textarea>
       </label>
 
       <label>
-        Town / City
-        <input
-          required
-          name="city"
-          placeholder="Town or city"
-        >
+        City
+        <input required name="city" placeholder="City">
       </label>
 
       <label>
         Postcode
-        <input
-          required
-          name="postcode"
-          placeholder="Postcode"
-        >
+        <input required name="postcode" placeholder="Postcode">
       </label>
 
-
-      <h2>🚚 Shipping method</h2>
+      <h2>Shipping</h2>
 
       <label>
-        <input
-          type="radio"
-          name="shipping"
-          value="standard"
-          checked
-        >
-
-        Standard delivery — £3.50
-
-        <small>
-          Regular delivery
-        </small>
+        <input type="radio" name="shipping" value="standard" data-price="3.50" checked>
+        Standard — £3.50
       </label>
 
       <label>
-        <input
-          type="radio"
-          name="shipping"
-          value="tracked"
-        >
-
-        Tracked delivery — £5.50
-
-        <small>
-          Delivery with tracking
-        </small>
+        <input type="radio" name="shipping" value="tracked" data-price="5.50">
+        Tracked — £5.50
       </label>
 
       <label>
-        <input
-          type="radio"
-          name="shipping"
-          value="express"
-        >
-
-        Express delivery — £8.50
-
-        <small>
-          Faster delivery
-        </small>
+        <input type="radio" name="shipping" value="express" data-price="8.50">
+        Express — £8.50
       </label>
 
-
-      <h2>🏤 Shipping company</h2>
-
       <label>
-        Choose a shipping company
-
-        <select name="company" required>
-
-          <option value="Royal Mail">
-            Royal Mail
-          </option>
-
-          <option value="Evri">
-            Evri
-          </option>
-
-          <option value="DPD">
-            DPD
-          </option>
-
+        Shipping company
+        <select required name="shippingCompany">
+          <option value="">Choose a company</option>
+          <option value="Royal Mail">Royal Mail</option>
+          <option value="Evri">Evri</option>
+          <option value="DPD">DPD</option>
         </select>
-
       </label>
 
-
-      <div class="notice">
-
-        🧪 <b>Test checkout</b>
-
-        <p>
-          This is only a pretend order.
-          No money will be taken.
-        </p>
-
-        <p>
-          Don't enter real card or payment details.
-        </p>
-
-      </div>
-
+      <p class="notice">
+        ☘ This is still a test checkout.
+        Don't enter real payment or card details.
+      </p>
 
       <label>
-
-        <input
-          type="checkbox"
-          required
-        >
-
-        I understand this is a test order.
-
+        <input required type="checkbox" name="testOrder">
+        I understand this is a pretend/test order.
       </label>
-
 
       <button class="btn" type="submit">
         place pretend order ☘
       </button>
 
     </form>
-
 
     <aside class="card">
 
@@ -198,338 +108,215 @@
 
 </main>
 
-<footer>
-  qoolbie ☘
-</footer>
+<footer>qoolbie ☘</footer>
 
-
-<script src="script.js?v=4"></script>
+<script src="script.js?v=6"></script>
 
 <script>
 
-function getCheckoutShipping() {
+const SUPABASE_URL = "https://fnvmtifspfdlclekbhcw.supabase.co";
 
-  const selected =
-    document.querySelector(
-      'input[name="shipping"]:checked'
-    );
+/*
+  Paste your Supabase PUBLISHABLE KEY between the quotation marks below.
 
-  if (!selected) return 3.50;
+  It should start with:
+  sb_publishable_
+*/
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
 
-  if (selected.value === "tracked") {
-    return 5.50;
+
+function getShipping() {
+
+  const selected = document.querySelector(
+    'input[name="shipping"]:checked'
+  );
+
+  if (!selected) {
+    return {
+      method: "standard",
+      fee: 3.50
+    };
   }
 
-  if (selected.value === "express") {
-    return 8.50;
-  }
-
-  return 3.50;
+  return {
+    method: selected.value,
+    fee: Number(selected.dataset.price)
+  };
 }
 
 
-function updateCheckoutSummary() {
+function getCurrentCart() {
 
-  const summary =
-    document.getElementById("summary");
+  if (typeof getCart === "function") {
+    return getCart();
+  }
 
-  if (!summary) return;
+  try {
+    return JSON.parse(localStorage.getItem("qoolbieCart")) || [];
+  } catch {
+    return [];
+  }
+}
 
-  const cart =
-    JSON.parse(
-      localStorage.getItem("qoolbieCart") || "[]"
-    );
 
-  if (cart.length === 0) {
+function calculateSubtotal(cart) {
+
+  return cart.reduce(function(total, item) {
+
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 1;
+
+    return total + (price * quantity);
+
+  }, 0);
+
+}
+
+
+function updateSummary() {
+
+  const cart = getCurrentCart();
+  const shipping = getShipping();
+  const subtotal = calculateSubtotal(cart);
+  const total = subtotal + shipping.fee;
+
+  const summary = document.getElementById("summary");
+
+  if (!cart.length) {
 
     summary.innerHTML = `
       <p>Your basket is empty.</p>
-
-      <a class="btn" href="shop.html">
-        visit the shop
-      </a>
+      <a class="btn" href="shop.html">go to shop ☘</a>
     `;
 
     return;
   }
 
-
-  let subtotal = 0;
-
-
-  cart.forEach(item => {
-
-    const product =
-      PRODUCTS.find(
-        product => product.id === item.id
-      );
-
-    if (!product) return;
-
-    const itemTotal =
-      Number(product.price) * item.qty;
-
-    subtotal += itemTotal;
-
-  });
-
-
-  const shipping =
-    getCheckoutShipping();
-
-  const total =
-    subtotal + shipping;
-
-
   summary.innerHTML = `
-
-    <div>
-
-      ${cart.map(item => {
-
-        const product =
-          PRODUCTS.find(
-            product => product.id === item.id
-          );
-
-        if (!product) return "";
-
-        const itemTotal =
-          Number(product.price) * item.qty;
-
-        return `
-          <p>
-            <b>${product.name}</b>
-            × ${item.qty}
-
-            <br>
-
-            £${itemTotal.toFixed(2)}
-          </p>
-        `;
-
-      }).join("")}
-
-    </div>
-
+    <p><strong>Items:</strong> ${cart.length}</p>
+    <p><strong>Subtotal:</strong> £${subtotal.toFixed(2)}</p>
+    <p><strong>Shipping:</strong> £${shipping.fee.toFixed(2)}</p>
     <hr>
-
-    <p>
-      Items:
-      <b>£${subtotal.toFixed(2)}</b>
-    </p>
-
-    <p>
-      Shipping:
-      <b>£${shipping.toFixed(2)}</b>
-    </p>
-
-    <h2>
-      Total:
-      £${total.toFixed(2)}
-    </h2>
-
+    <p><strong>Total:</strong> £${total.toFixed(2)}</p>
   `;
+
 }
 
 
-document
-  .querySelectorAll('input[name="shipping"]')
-  .forEach(input => {
+document.querySelectorAll('input[name="shipping"]').forEach(function(input) {
 
-    input.addEventListener(
-      "change",
-      updateCheckoutSummary
-    );
+  input.addEventListener("change", updateSummary);
 
-  });
+});
 
 
-document
-  .getElementById("checkoutForm")
-  .addEventListener("submit", function(event) {
-
-    event.preventDefault();
+updateSummary();
 
 
-    const name =
-      this.elements.name.value;
+document.getElementById("checkoutForm").addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  const form = event.target;
+  const cart = getCurrentCart();
+
+  if (!cart.length) {
+    alert("Your basket is empty ☘");
+    return;
+  }
+
+  if (
+    !SUPABASE_PUBLISHABLE_KEY ||
+    SUPABASE_PUBLISHABLE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE"
+  ) {
+    alert("The Supabase publishable key has not been added yet.");
+    return;
+  }
+
+  const shipping = getShipping();
+  const subtotal = calculateSubtotal(cart);
+  const total = subtotal + shipping.fee;
+
+  const formData = new FormData(form);
+
+  const order = {
+
+    customer_name: formData.get("name"),
+    email: formData.get("email"),
+    address: formData.get("address"),
+    city: formData.get("city"),
+    postcode: formData.get("postcode"),
+
+    shipping_method: shipping.method,
+    shipping_company: formData.get("shippingCompany"),
+
+    items: cart,
+
+    subtotal: Number(subtotal.toFixed(2)),
+    shipping_fee: Number(shipping.fee.toFixed(2)),
+    total: Number(total.toFixed(2))
+
+  };
 
 
-    const shipping =
-      this.elements.shipping.value;
+  const button = form.querySelector("button[type='submit']");
+
+  button.disabled = true;
+  button.textContent = "saving order... ☘";
 
 
-    const company =
-      this.elements.company.value;
+  try {
 
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/Orders",
+      {
+        method: "POST",
 
-    const shippingNames = {
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY,
+          "Prefer": "return=minimal"
+        },
 
-      standard: "Standard delivery",
-
-      tracked: "Tracked delivery",
-
-      express: "Express delivery"
-
-    };
-
-
-    const shippingPrices = {
-
-      standard: 3.50,
-
-      tracked: 5.50,
-
-      express: 8.50
-
-    };
-
-
-    const cart =
-      JSON.parse(
-        localStorage.getItem("qoolbieCart") || "[]"
-      );
-
-
-    let subtotal = 0;
-
-
-    cart.forEach(item => {
-
-      const product =
-        PRODUCTS.find(
-          product => product.id === item.id
-        );
-
-      if (!product) return;
-
-      subtotal +=
-        Number(product.price) * item.qty;
-
-    });
-
-
-    const shippingPrice =
-      shippingPrices[shipping] || 3.50;
-
-
-    const total =
-      subtotal + shippingPrice;
-
-
-    const testOrder = {
-
-      id:
-        "TEST-" +
-        Date.now(),
-
-      name: name,
-
-      shipping:
-        shippingNames[shipping],
-
-      company: company,
-
-      shippingFee:
-        shippingPrice,
-
-      subtotal:
-        subtotal,
-
-      total:
-        total,
-
-      date:
-        new Date().toISOString(),
-
-      testOrder:
-        true
-
-    };
-
-
-    const oldOrders =
-      JSON.parse(
-        localStorage.getItem("qoolbieTestOrders")
-        || "[]"
-      );
-
-
-    oldOrders.push(testOrder);
-
-
-    localStorage.setItem(
-      "qoolbieTestOrders",
-      JSON.stringify(oldOrders)
+        body: JSON.stringify(order)
+      }
     );
 
 
-    localStorage.removeItem(
-      "qoolbieCart"
-    );
+    if (!response.ok) {
+
+      const errorText = await response.text();
+
+      console.error("Supabase error:", errorText);
+
+      throw new Error("Order could not be saved.");
+
+    }
+
+
+    localStorage.removeItem("qoolbieCart");
 
 
     document.querySelector(".checkout").innerHTML = `
 
       <div class="card success">
 
-        <div style="font-size:40px;">
-          🐨💤☘
-        </div>
+        <div>🐨💤☘</div>
 
-        <h2>
-          Order received!
-        </h2>
+        <h2>Order received!</h2>
 
         <p>
-          Thank you, ${name}! 🌱
+          Yuyuhoon has safely saved your pretend order.
         </p>
 
         <p>
-          Yuyuhoon has put your pretend order
-          somewhere safe.
-          Probably next to his pillow.
-        </p>
-
-        <hr>
-
-        <p>
-          <b>Test order:</b>
-          ${testOrder.id}
+          Shipping: ${shipping.method} with ${formData.get("shippingCompany")}
         </p>
 
         <p>
-          <b>Shipping:</b>
-          ${shippingNames[shipping]}
+          Total: £${total.toFixed(2)}
         </p>
-
-        <p>
-          <b>Shipping company:</b>
-          ${company}
-        </p>
-
-        <p>
-          <b>Shipping fee:</b>
-          £${shippingPrice.toFixed(2)}
-        </p>
-
-        <h2>
-          Test total:
-          £${total.toFixed(2)}
-        </h2>
-
-        <div class="notice">
-
-          🧪 This was only a test order.
-
-          <br><br>
-
-          No money was taken.
-
-        </div>
-
-        <br>
 
         <a class="btn" href="index.html">
           back to qoolbie
@@ -539,10 +326,20 @@ document
 
     `;
 
-  });
+  } catch (error) {
 
+    console.error(error);
 
-updateCheckoutSummary();
+    alert(
+      "Sorry! The test order could not be saved. Please check the Supabase setup."
+    );
+
+    button.disabled = false;
+    button.textContent = "place pretend order ☘";
+
+  }
+
+});
 
 </script>
 
