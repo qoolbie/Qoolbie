@@ -1,3 +1,550 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checkout — qoolbie</title><link rel="stylesheet" href="style.css"></head>
-<body><nav><a class="logo" href="index.html">q<span>oo</span>lbie</a><div><a href="shop.html">Clover Shop</a><a href="cart.html">Cart <span class="cart-count">0</span></a></div></nav>
-<main class="page"><span class="pill">☘ sleepy checkout</span><h1>checkout</h1><div class="checkout"><form id="checkoutForm" class="card"><h2>Where should we send it?</h2><label>Name<input required name="name" placeholder="Your name"></label><label>Email<input required type="email" name="email" placeholder="you@example.com"></label><label>Address<textarea required name="address" placeholder="Shipping address"></textarea></label><p class="notice">This is a demo checkout. Don't enter real payment/card details.</p><button class="btn" type="submit">place pretend order ☘</button></form><aside class="card"><h2>Order summary</h2><div id="summary"></div></aside></div></main><footer>qoolbie ☘</footer><script src="script.js"></script><script>renderSummary();document.getElementById('checkoutForm').addEventListener('submit',e=>{e.preventDefault();localStorage.removeItem('qoolbieCart');document.querySelector('.checkout').innerHTML='<div class="card success"><div>🐨💤☘</div><h2>Order received!</h2><p>Yuyuhoon has put your pretend order somewhere safe. Probably next to his pillow.</p><a class="btn" href="index.html">back to qoolbie</a></div>'})</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checkout — qoolbie</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+  <a class="logo" href="index.html">q<span>oo</span>lbie</a>
+
+  <div>
+    <a href="shop.html">Clover Shop</a>
+    <a href="stories.html">Stories</a>
+    <a href="cart.html">
+      Cart <span class="cart-count">0</span>
+    </a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <span class="pill">☘ sleepy checkout</span>
+
+  <h1>checkout</h1>
+
+  <div class="checkout">
+
+    <form id="checkoutForm" class="card">
+
+      <h2>Where should we send it?</h2>
+
+      <label>
+        Name
+        <input
+          required
+          name="name"
+          placeholder="Your name"
+        >
+      </label>
+
+      <label>
+        Email
+        <input
+          required
+          type="email"
+          name="email"
+          placeholder="you@example.com"
+        >
+      </label>
+
+      <label>
+        Address
+        <textarea
+          required
+          name="address"
+          placeholder="House number and street"
+        ></textarea>
+      </label>
+
+      <label>
+        Town / City
+        <input
+          required
+          name="city"
+          placeholder="Town or city"
+        >
+      </label>
+
+      <label>
+        Postcode
+        <input
+          required
+          name="postcode"
+          placeholder="Postcode"
+        >
+      </label>
+
+
+      <h2>🚚 Shipping method</h2>
+
+      <label>
+        <input
+          type="radio"
+          name="shipping"
+          value="standard"
+          checked
+        >
+
+        Standard delivery — £3.50
+
+        <small>
+          Regular delivery
+        </small>
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="shipping"
+          value="tracked"
+        >
+
+        Tracked delivery — £5.50
+
+        <small>
+          Delivery with tracking
+        </small>
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="shipping"
+          value="express"
+        >
+
+        Express delivery — £8.50
+
+        <small>
+          Faster delivery
+        </small>
+      </label>
+
+
+      <h2>🏤 Shipping company</h2>
+
+      <label>
+        Choose a shipping company
+
+        <select name="company" required>
+
+          <option value="Royal Mail">
+            Royal Mail
+          </option>
+
+          <option value="Evri">
+            Evri
+          </option>
+
+          <option value="DPD">
+            DPD
+          </option>
+
+        </select>
+
+      </label>
+
+
+      <div class="notice">
+
+        🧪 <b>Test checkout</b>
+
+        <p>
+          This is only a pretend order.
+          No money will be taken.
+        </p>
+
+        <p>
+          Don't enter real card or payment details.
+        </p>
+
+      </div>
+
+
+      <label>
+
+        <input
+          type="checkbox"
+          required
+        >
+
+        I understand this is a test order.
+
+      </label>
+
+
+      <button class="btn" type="submit">
+        place pretend order ☘
+      </button>
+
+    </form>
+
+
+    <aside class="card">
+
+      <h2>Order summary</h2>
+
+      <div id="summary"></div>
+
+    </aside>
+
+  </div>
+
+</main>
+
+<footer>
+  qoolbie ☘
+</footer>
+
+
+<script src="script.js?v=4"></script>
+
+<script>
+
+function getCheckoutShipping() {
+
+  const selected =
+    document.querySelector(
+      'input[name="shipping"]:checked'
+    );
+
+  if (!selected) return 3.50;
+
+  if (selected.value === "tracked") {
+    return 5.50;
+  }
+
+  if (selected.value === "express") {
+    return 8.50;
+  }
+
+  return 3.50;
+}
+
+
+function updateCheckoutSummary() {
+
+  const summary =
+    document.getElementById("summary");
+
+  if (!summary) return;
+
+  const cart =
+    JSON.parse(
+      localStorage.getItem("qoolbieCart") || "[]"
+    );
+
+  if (cart.length === 0) {
+
+    summary.innerHTML = `
+      <p>Your basket is empty.</p>
+
+      <a class="btn" href="shop.html">
+        visit the shop
+      </a>
+    `;
+
+    return;
+  }
+
+
+  let subtotal = 0;
+
+
+  cart.forEach(item => {
+
+    const product =
+      PRODUCTS.find(
+        product => product.id === item.id
+      );
+
+    if (!product) return;
+
+    const itemTotal =
+      Number(product.price) * item.qty;
+
+    subtotal += itemTotal;
+
+  });
+
+
+  const shipping =
+    getCheckoutShipping();
+
+  const total =
+    subtotal + shipping;
+
+
+  summary.innerHTML = `
+
+    <div>
+
+      ${cart.map(item => {
+
+        const product =
+          PRODUCTS.find(
+            product => product.id === item.id
+          );
+
+        if (!product) return "";
+
+        const itemTotal =
+          Number(product.price) * item.qty;
+
+        return `
+          <p>
+            <b>${product.name}</b>
+            × ${item.qty}
+
+            <br>
+
+            £${itemTotal.toFixed(2)}
+          </p>
+        `;
+
+      }).join("")}
+
+    </div>
+
+    <hr>
+
+    <p>
+      Items:
+      <b>£${subtotal.toFixed(2)}</b>
+    </p>
+
+    <p>
+      Shipping:
+      <b>£${shipping.toFixed(2)}</b>
+    </p>
+
+    <h2>
+      Total:
+      £${total.toFixed(2)}
+    </h2>
+
+  `;
+}
+
+
+document
+  .querySelectorAll('input[name="shipping"]')
+  .forEach(input => {
+
+    input.addEventListener(
+      "change",
+      updateCheckoutSummary
+    );
+
+  });
+
+
+document
+  .getElementById("checkoutForm")
+  .addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+
+    const name =
+      this.elements.name.value;
+
+
+    const shipping =
+      this.elements.shipping.value;
+
+
+    const company =
+      this.elements.company.value;
+
+
+    const shippingNames = {
+
+      standard: "Standard delivery",
+
+      tracked: "Tracked delivery",
+
+      express: "Express delivery"
+
+    };
+
+
+    const shippingPrices = {
+
+      standard: 3.50,
+
+      tracked: 5.50,
+
+      express: 8.50
+
+    };
+
+
+    const cart =
+      JSON.parse(
+        localStorage.getItem("qoolbieCart") || "[]"
+      );
+
+
+    let subtotal = 0;
+
+
+    cart.forEach(item => {
+
+      const product =
+        PRODUCTS.find(
+          product => product.id === item.id
+        );
+
+      if (!product) return;
+
+      subtotal +=
+        Number(product.price) * item.qty;
+
+    });
+
+
+    const shippingPrice =
+      shippingPrices[shipping] || 3.50;
+
+
+    const total =
+      subtotal + shippingPrice;
+
+
+    const testOrder = {
+
+      id:
+        "TEST-" +
+        Date.now(),
+
+      name: name,
+
+      shipping:
+        shippingNames[shipping],
+
+      company: company,
+
+      shippingFee:
+        shippingPrice,
+
+      subtotal:
+        subtotal,
+
+      total:
+        total,
+
+      date:
+        new Date().toISOString(),
+
+      testOrder:
+        true
+
+    };
+
+
+    const oldOrders =
+      JSON.parse(
+        localStorage.getItem("qoolbieTestOrders")
+        || "[]"
+      );
+
+
+    oldOrders.push(testOrder);
+
+
+    localStorage.setItem(
+      "qoolbieTestOrders",
+      JSON.stringify(oldOrders)
+    );
+
+
+    localStorage.removeItem(
+      "qoolbieCart"
+    );
+
+
+    document.querySelector(".checkout").innerHTML = `
+
+      <div class="card success">
+
+        <div style="font-size:40px;">
+          🐨💤☘
+        </div>
+
+        <h2>
+          Order received!
+        </h2>
+
+        <p>
+          Thank you, ${name}! 🌱
+        </p>
+
+        <p>
+          Yuyuhoon has put your pretend order
+          somewhere safe.
+          Probably next to his pillow.
+        </p>
+
+        <hr>
+
+        <p>
+          <b>Test order:</b>
+          ${testOrder.id}
+        </p>
+
+        <p>
+          <b>Shipping:</b>
+          ${shippingNames[shipping]}
+        </p>
+
+        <p>
+          <b>Shipping company:</b>
+          ${company}
+        </p>
+
+        <p>
+          <b>Shipping fee:</b>
+          £${shippingPrice.toFixed(2)}
+        </p>
+
+        <h2>
+          Test total:
+          £${total.toFixed(2)}
+        </h2>
+
+        <div class="notice">
+
+          🧪 This was only a test order.
+
+          <br><br>
+
+          No money was taken.
+
+        </div>
+
+        <br>
+
+        <a class="btn" href="index.html">
+          back to qoolbie
+        </a>
+
+      </div>
+
+    `;
+
+  });
+
+
+updateCheckoutSummary();
+
+</script>
+
+</body>
+</html>
