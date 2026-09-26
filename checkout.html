@@ -20,6 +20,7 @@
 <main class="page">
 
   <span class="pill">☘ sleepy checkout</span>
+
   <h1>checkout</h1>
 
   <div class="checkout">
@@ -56,22 +57,39 @@
       <h2>Shipping</h2>
 
       <label>
-        <input type="radio" name="shipping" value="standard" data-price="3.50" checked>
+        <input
+          type="radio"
+          name="shipping"
+          value="standard"
+          data-price="3.50"
+          checked
+        >
         Standard — £3.50
       </label>
 
       <label>
-        <input type="radio" name="shipping" value="tracked" data-price="5.50">
+        <input
+          type="radio"
+          name="shipping"
+          value="tracked"
+          data-price="5.50"
+        >
         Tracked — £5.50
       </label>
 
       <label>
-        <input type="radio" name="shipping" value="express" data-price="8.50">
+        <input
+          type="radio"
+          name="shipping"
+          value="express"
+          data-price="8.50"
+        >
         Express — £8.50
       </label>
 
       <label>
         Shipping company
+
         <select required name="shippingCompany">
           <option value="">Choose a company</option>
           <option value="Royal Mail">Royal Mail</option>
@@ -81,7 +99,7 @@
       </label>
 
       <p class="notice">
-        ☘ This is still a test checkout.
+        ☘ This is a test checkout.
         Don't enter real payment or card details.
       </p>
 
@@ -110,39 +128,13 @@
 
 <footer>qoolbie ☘</footer>
 
-<script src="script.js?v=6"></script>
+
+<script src="script.js?v=7"></script>
 
 <script>
 
-const SUPABASE_URL = "https://fnvmtifspfdlclekbhcw.supabase.co";
-
-/*
-  Paste your Supabase PUBLISHABLE KEY between the quotation marks below.
-
-  It should start with:
-  sb_publishable_
-*/
-const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
-
-
-function getShipping() {
-
-  const selected = document.querySelector(
-    'input[name="shipping"]:checked'
-  );
-
-  if (!selected) {
-    return {
-      method: "standard",
-      fee: 3.50
-    };
-  }
-
-  return {
-    method: selected.value,
-    fee: Number(selected.dataset.price)
-  };
-}
+const SAVE_ORDER_URL =
+  "https://fnvmtifspfdlclekbhcw.supabase.co/functions/v1/save-order";
 
 
 function getCurrentCart() {
@@ -156,6 +148,48 @@ function getCurrentCart() {
   } catch {
     return [];
   }
+
+}
+
+
+function getShipping() {
+
+  const selected =
+    document.querySelector('input[name="shipping"]:checked');
+
+  if (!selected) {
+    return {
+      method: "standard",
+      fee: 3.50
+    };
+  }
+
+  return {
+    method: selected.value,
+    fee: Number(selected.dataset.price)
+  };
+
+}
+
+
+function getItemPrice(item) {
+
+  return Number(
+    item.price ??
+    item.product?.price ??
+    0
+  );
+
+}
+
+
+function getItemQuantity(item) {
+
+  return Number(
+    item.quantity ??
+    1
+  );
+
 }
 
 
@@ -163,10 +197,9 @@ function calculateSubtotal(cart) {
 
   return cart.reduce(function(total, item) {
 
-    const price = Number(item.price) || 0;
-    const quantity = Number(item.quantity) || 1;
-
-    return total + (price * quantity);
+    return total +
+      getItemPrice(item) *
+      getItemQuantity(item);
 
   }, 0);
 
@@ -186,160 +219,254 @@ function updateSummary() {
 
     summary.innerHTML = `
       <p>Your basket is empty.</p>
-      <a class="btn" href="shop.html">go to shop ☘</a>
+      <a class="btn" href="shop.html">
+        go to shop ☘
+      </a>
     `;
 
     return;
   }
 
   summary.innerHTML = `
-    <p><strong>Items:</strong> ${cart.length}</p>
-    <p><strong>Subtotal:</strong> £${subtotal.toFixed(2)}</p>
-    <p><strong>Shipping:</strong> £${shipping.fee.toFixed(2)}</p>
+
+    ${cart.map(function(item) {
+
+      const name =
+        item.name ||
+        item.product?.name ||
+        "Qoolbie item";
+
+      const quantity =
+        getItemQuantity(item);
+
+      const price =
+        getItemPrice(item);
+
+      return `
+        <p>
+          ${name} × ${quantity}
+          <strong>£${(price * quantity).toFixed(2)}</strong>
+        </p>
+      `;
+
+    }).join("")}
+
     <hr>
-    <p><strong>Total:</strong> £${total.toFixed(2)}</p>
+
+    <p>
+      <strong>Subtotal</strong>
+      £${subtotal.toFixed(2)}
+    </p>
+
+    <p>
+      <strong>Shipping</strong>
+      £${shipping.fee.toFixed(2)}
+    </p>
+
+    <hr>
+
+    <p>
+      <strong>Total</strong>
+      £${total.toFixed(2)}
+    </p>
+
   `;
 
 }
 
 
-document.querySelectorAll('input[name="shipping"]').forEach(function(input) {
+document
+  .querySelectorAll('input[name="shipping"]')
+  .forEach(function(input) {
 
-  input.addEventListener("change", updateSummary);
+    input.addEventListener(
+      "change",
+      updateSummary
+    );
 
-});
+  });
 
 
 updateSummary();
 
 
-document.getElementById("checkoutForm").addEventListener("submit", async function(event) {
+document
+  .getElementById("checkoutForm")
+  .addEventListener("submit", async function(event) {
 
-  event.preventDefault();
+    event.preventDefault();
 
-  const form = event.target;
-  const cart = getCurrentCart();
+    const form = event.target;
+    const cart = getCurrentCart();
 
-  if (!cart.length) {
-    alert("Your basket is empty ☘");
-    return;
-  }
+    if (!cart.length) {
 
-  if (
-    !SUPABASE_PUBLISHABLE_KEY ||
-    SUPABASE_PUBLISHABLE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE"
-  ) {
-    alert("The Supabase publishable key has not been added yet.");
-    return;
-  }
+      alert("Your basket is empty ☘");
 
-  const shipping = getShipping();
-  const subtotal = calculateSubtotal(cart);
-  const total = subtotal + shipping.fee;
-
-  const formData = new FormData(form);
-
-  const order = {
-
-    customer_name: formData.get("name"),
-    email: formData.get("email"),
-    address: formData.get("address"),
-    city: formData.get("city"),
-    postcode: formData.get("postcode"),
-
-    shipping_method: shipping.method,
-    shipping_company: formData.get("shippingCompany"),
-
-    items: cart,
-
-    subtotal: Number(subtotal.toFixed(2)),
-    shipping_fee: Number(shipping.fee.toFixed(2)),
-    total: Number(total.toFixed(2))
-
-  };
-
-
-  const button = form.querySelector("button[type='submit']");
-
-  button.disabled = true;
-  button.textContent = "saving order... ☘";
-
-
-  try {
-
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/Orders",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_PUBLISHABLE_KEY,
-          "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY,
-          "Prefer": "return=minimal"
-        },
-
-        body: JSON.stringify(order)
-      }
-    );
-
-
-    if (!response.ok) {
-
-      const errorText = await response.text();
-
-      console.error("Supabase error:", errorText);
-
-      throw new Error("Order could not be saved.");
+      return;
 
     }
 
 
-    localStorage.removeItem("qoolbieCart");
+    const shipping = getShipping();
+
+    const subtotal =
+      calculateSubtotal(cart);
+
+    const total =
+      subtotal + shipping.fee;
+
+    const formData =
+      new FormData(form);
 
 
-    document.querySelector(".checkout").innerHTML = `
+    const order = {
 
-      <div class="card success">
+      customer_name:
+        formData.get("name"),
 
-        <div>🐨💤☘</div>
+      email:
+        formData.get("email"),
 
-        <h2>Order received!</h2>
+      address:
+        formData.get("address"),
 
-        <p>
-          Yuyuhoon has safely saved your pretend order.
-        </p>
+      city:
+        formData.get("city"),
 
-        <p>
-          Shipping: ${shipping.method} with ${formData.get("shippingCompany")}
-        </p>
+      postcode:
+        formData.get("postcode"),
 
-        <p>
-          Total: £${total.toFixed(2)}
-        </p>
+      shipping_method:
+        shipping.method,
 
-        <a class="btn" href="index.html">
-          back to qoolbie
-        </a>
+      shipping_company:
+        formData.get("shippingCompany"),
 
-      </div>
+      items:
+        cart,
 
-    `;
+      subtotal:
+        Number(subtotal.toFixed(2)),
 
-  } catch (error) {
+      shipping_fee:
+        Number(shipping.fee.toFixed(2)),
 
-    console.error(error);
+      total:
+        Number(total.toFixed(2))
 
-    alert(
-      "Sorry! The test order could not be saved. Please check the Supabase setup."
-    );
+    };
 
-    button.disabled = false;
-    button.textContent = "place pretend order ☘";
 
-  }
+    const button =
+      form.querySelector(
+        "button[type='submit']"
+      );
 
-});
+
+    button.disabled = true;
+
+    button.textContent =
+      "saving order... ☘";
+
+
+    try {
+
+      const response =
+        await fetch(
+          SAVE_ORDER_URL,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify(order)
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        console.error(
+          "Order error:",
+          result
+        );
+
+        throw new Error(
+          result.error ||
+          "Order could not be saved."
+        );
+
+      }
+
+
+      localStorage.removeItem(
+        "qoolbieCart"
+      );
+
+
+      document.querySelector(
+        ".checkout"
+      ).innerHTML = `
+
+        <div class="card success">
+
+          <div>🐨💤☘</div>
+
+          <h2>Order received!</h2>
+
+          <p>
+            Yuyuhoon has safely saved
+            your pretend order.
+          </p>
+
+          <p>
+            Shipping:
+            ${shipping.method}
+            with
+            ${formData.get("shippingCompany")}
+          </p>
+
+          <p>
+            Total:
+            £${total.toFixed(2)}
+          </p>
+
+          <a
+            class="btn"
+            href="index.html"
+          >
+            back to qoolbie
+          </a>
+
+        </div>
+
+      `;
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Sorry! The test order could not be saved."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        "place pretend order ☘";
+
+    }
+
+  });
 
 </script>
 
