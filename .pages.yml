@@ -1,4 +1,7 @@
 
+id="5eawsz"
+id="rrz9cd"
+id="ldc0bj"
 media:
   input: media
   output: /media
@@ -26,6 +29,12 @@ content:
       - name: details
         label: More Details
         type: text
+      - name: type
+        label: Product Type
+        type: string
+      - name: digitalFile
+        label: Digital File
+        type: image
       - name: available
         label: Available
         type: boolean
@@ -52,12 +61,6 @@ content:
         label: Extra Story Pictures
         type: image
         list: true
-      - name: published
-        label: Published
-        type: boolean
-      - name: content
-        label: Story
-        type: text
       - name: published
         label: Published
         type: boolean
