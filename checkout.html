@@ -20,7 +20,6 @@
 <main class="page">
 
   <span class="pill">☘ sleepy checkout</span>
-
   <h1>checkout</h1>
 
   <div class="checkout">
@@ -115,11 +114,8 @@
     </form>
 
     <aside class="card">
-
       <h2>Order summary</h2>
-
       <div id="summary"></div>
-
     </aside>
 
   </div>
@@ -128,8 +124,7 @@
 
 <footer>qoolbie ☘</footer>
 
-
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 
 <script>
 
@@ -139,56 +134,32 @@ const SAVE_ORDER_URL =
 
 function getCurrentCart() {
 
-  if (typeof getCart === "function") {
-    return getCart();
-  }
-
-  try {
-    return JSON.parse(localStorage.getItem("qoolbieCart")) || [];
-  } catch {
-    return [];
-  }
+  return getCart();
 
 }
 
 
-function getShipping() {
+function getProduct(cartItem) {
 
-  const selected =
-    document.querySelector('input[name="shipping"]:checked');
-
-  if (!selected) {
-    return {
-      method: "standard",
-      fee: 3.50
-    };
-  }
-
-  return {
-    method: selected.value,
-    fee: Number(selected.dataset.price)
-  };
+  return PRODUCTS.find(function(product) {
+    return product.id === cartItem.id;
+  });
 
 }
 
 
-function getItemPrice(item) {
+function getItemPrice(cartItem) {
 
-  return Number(
-    item.price ??
-    item.product?.price ??
-    0
-  );
+  const product = getProduct(cartItem);
+
+  return product ? Number(product.price) : 0;
 
 }
 
 
-function getItemQuantity(item) {
+function getItemQuantity(cartItem) {
 
-  return Number(
-    item.quantity ??
-    1
-  );
+  return Number(cartItem.qty) || 0;
 
 }
 
@@ -206,6 +177,28 @@ function calculateSubtotal(cart) {
 }
 
 
+function getShipping() {
+
+  const selected =
+    document.querySelector('input[name="shipping"]:checked');
+
+  if (!selected) {
+
+    return {
+      method: "standard",
+      fee: 3.50
+    };
+
+  }
+
+  return {
+    method: selected.value,
+    fee: Number(selected.dataset.price)
+  };
+
+}
+
+
 function updateSummary() {
 
   const cart = getCurrentCart();
@@ -213,28 +206,33 @@ function updateSummary() {
   const subtotal = calculateSubtotal(cart);
   const total = subtotal + shipping.fee;
 
-  const summary = document.getElementById("summary");
+  const summary =
+    document.getElementById("summary");
+
 
   if (!cart.length) {
 
     summary.innerHTML = `
       <p>Your basket is empty.</p>
+
       <a class="btn" href="shop.html">
         go to shop ☘
       </a>
     `;
 
     return;
+
   }
+
 
   summary.innerHTML = `
 
     ${cart.map(function(item) {
 
-      const name =
-        item.name ||
-        item.product?.name ||
-        "Qoolbie item";
+      const product =
+        getProduct(item);
+
+      if (!product) return "";
 
       const quantity =
         getItemQuantity(item);
@@ -244,8 +242,10 @@ function updateSummary() {
 
       return `
         <p>
-          ${name} × ${quantity}
-          <strong>£${(price * quantity).toFixed(2)}</strong>
+          ${product.name} × ${quantity}<br>
+          <strong>
+            £${(price * quantity).toFixed(2)}
+          </strong>
         </p>
       `;
 
@@ -265,10 +265,9 @@ function updateSummary() {
 
     <hr>
 
-    <p>
-      <strong>Total</strong>
+    <h2>
       £${total.toFixed(2)}
-    </p>
+    </h2>
 
   `;
 
@@ -299,6 +298,7 @@ document
     const form = event.target;
     const cart = getCurrentCart();
 
+
     if (!cart.length) {
 
       alert("Your basket is empty ☘");
@@ -308,7 +308,8 @@ document
     }
 
 
-    const shipping = getShipping();
+    const shipping =
+      getShipping();
 
     const subtotal =
       calculateSubtotal(cart);
@@ -419,7 +420,7 @@ document
 
         <div class="card success">
 
-          <div>🐨💤☘</div>
+          <div>🐨💤☘️</div>
 
           <h2>Order received!</h2>
 
@@ -436,8 +437,20 @@ document
           </p>
 
           <p>
-            Total:
-            £${total.toFixed(2)}
+            Products:
+            £${subtotal.toFixed(2)}
+          </p>
+
+          <p>
+            Shipping:
+            £${shipping.fee.toFixed(2)}
+          </p>
+
+          <p>
+            <strong>
+              Total:
+              £${total.toFixed(2)}
+            </strong>
           </p>
 
           <a
