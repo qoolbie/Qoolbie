@@ -1,11 +1,8 @@
 
-id="5eawsz"
-id="rrz9cd"
-id="ldc0bj"
 media:
   input: media
   output: /media
-  categories: [image]
+  categories: [image, document, compressed]
 
 content:
   - name: products
@@ -17,24 +14,39 @@ content:
       - name: name
         label: Product Name
         type: string
+
       - name: price
         label: Price
         type: number
+
       - name: image
         label: Product Image
         type: image
+
       - name: description
         label: Description
         type: string
+
       - name: details
         label: More Details
         type: text
+
       - name: type
         label: Product Type
-        type: string
+        type: select
+        options:
+          values:
+            - name: physical
+              label: Physical
+            - name: digital
+              label: Digital
+
       - name: digitalFile
         label: Digital File
-        type: image
+        type: file
+        options:
+          categories: [document, compressed]
+
       - name: available
         label: Available
         type: boolean
