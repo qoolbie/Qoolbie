@@ -6,7 +6,6 @@
   <title>Checkout — qoolbie</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <nav>
@@ -18,15 +17,12 @@
 </nav>
 
 <main class="page">
-
   <span class="pill">☘ sleepy checkout</span>
   <h1>checkout</h1>
 
   <div class="checkout">
-
     <form id="checkoutForm" class="card">
-
-      <h2>Where should we send it?</h2>
+      <h2>Your details</h2>
 
       <label>
         Name
@@ -38,68 +34,56 @@
         <input required type="email" name="email" placeholder="you@example.com">
       </label>
 
-      <label>
-        Address
-        <textarea required name="address" placeholder="Shipping address"></textarea>
-      </label>
+      <section id="shippingSection">
+        <h2>Where should we send it?</h2>
 
-      <label>
-        City
-        <input required name="city" placeholder="City">
-      </label>
+        <label>
+          Address
+          <textarea name="address" placeholder="Shipping address"></textarea>
+        </label>
 
-      <label>
-        Postcode
-        <input required name="postcode" placeholder="Postcode">
-      </label>
+        <label>
+          City
+          <input name="city" placeholder="City">
+        </label>
 
-      <h2>Shipping</h2>
+        <label>
+          Postcode
+          <input name="postcode" placeholder="Postcode">
+        </label>
 
-      <label>
-        <input
-          type="radio"
-          name="shipping"
-          value="standard"
-          data-price="3.50"
-          checked
-        >
-        Standard — £3.50
-      </label>
+        <h2>Shipping</h2>
 
-      <label>
-        <input
-          type="radio"
-          name="shipping"
-          value="tracked"
-          data-price="5.50"
-        >
-        Tracked — £5.50
-      </label>
+        <label>
+          <input type="radio" name="shipping" value="standard" data-price="3.50" checked>
+          Standard — £3.50
+        </label>
 
-      <label>
-        <input
-          type="radio"
-          name="shipping"
-          value="express"
-          data-price="8.50"
-        >
-        Express — £8.50
-      </label>
+        <label>
+          <input type="radio" name="shipping" value="tracked" data-price="5.50">
+          Tracked — £5.50
+        </label>
 
-      <label>
-        Shipping company
+        <label>
+          <input type="radio" name="shipping" value="express" data-price="8.50">
+          Express — £8.50
+        </label>
 
-        <select required name="shippingCompany">
-          <option value="">Choose a company</option>
-          <option value="Royal Mail">Royal Mail</option>
-          <option value="Evri">Evri</option>
-          <option value="DPD">DPD</option>
-        </select>
-      </label>
+        <label>
+          Shipping company
+          <select name="shippingCompany">
+            <option value="">Choose a company</option>
+            <option value="Royal Mail">Royal Mail</option>
+            <option value="Evri">Evri</option>
+            <option value="DPD">DPD</option>
+          </select>
+        </label>
+      </section>
+
+      <p id="deliveryNote" class="notice"></p>
 
       <p class="notice">
-        ☘ This is a test checkout.
-        Don't enter real payment or card details.
+        ☘ This is a test checkout. Don't enter real payment or card details.
       </p>
 
       <label>
@@ -107,380 +91,201 @@
         I understand this is a pretend/test order.
       </label>
 
-      <button class="btn" type="submit">
-        place pretend order ☘
-      </button>
-
+      <button class="btn" type="submit">place pretend order ☘</button>
     </form>
 
     <aside class="card">
       <h2>Order summary</h2>
       <div id="summary"></div>
     </aside>
-
   </div>
-
 </main>
 
 <footer>qoolbie ☘</footer>
 
-<script src="script.js?v=8"></script>
-
+<script src="script.js?v=9"></script>
 <script>
-
 const SAVE_ORDER_URL =
   "https://fnvmtifspfdlclekbhcw.supabase.co/functions/v1/save-order";
 
+const form = document.getElementById("checkoutForm");
+const shippingSection = document.getElementById("shippingSection");
+const deliveryNote = document.getElementById("deliveryNote");
 
-function getCurrentCart() {
-
+function currentCart() {
   return getCart();
-
 }
 
+function productFor(item) {
+  return PRODUCTS.find(product => product.id === item.id);
+}
 
-function getProduct(cartItem) {
+function priceFor(item) {
+  const product = productFor(item);
+  return product ? Number(product.price) || 0 : 0;
+}
 
-  return PRODUCTS.find(function(product) {
-    return product.id === cartItem.id;
+function quantityFor(item) {
+  return Number(item.qty) || 0;
+}
+
+function cartNeedsShipping(cart) {
+  return cart.some(item => {
+    const product = productFor(item);
+    return product && product.type !== "digital";
+  });
+}
+
+function selectedShipping() {
+  const input = document.querySelector('input[name="shipping"]:checked');
+  return input
+    ? { method: input.value, fee: Number(input.dataset.price) }
+    : { method: "standard", fee: 3.50 };
+}
+
+function subtotalFor(cart) {
+  return cart.reduce(
+    (sum, item) => sum + priceFor(item) * quantityFor(item),
+    0
+  );
+}
+
+function updateCheckout() {
+  const cart = currentCart();
+  const needsShipping = cartNeedsShipping(cart);
+
+  shippingSection.hidden = !needsShipping;
+
+  shippingSection.querySelectorAll("input, select, textarea").forEach(field => {
+    const requiredField =
+      field.name === "address" ||
+      field.name === "city" ||
+      field.name === "postcode" ||
+      field.name === "shippingCompany";
+
+    field.required = needsShipping && requiredField;
   });
 
-}
+  deliveryNote.textContent = needsShipping
+    ? "📦 This basket includes physical products. Shipping is required. Digital items will be included too."
+    : "💻 Digital-only basket! No shipping address or shipping fee is needed.";
 
-
-function getItemPrice(cartItem) {
-
-  const product = getProduct(cartItem);
-
-  return product ? Number(product.price) : 0;
-
-}
-
-
-function getItemQuantity(cartItem) {
-
-  return Number(cartItem.qty) || 0;
-
-}
-
-
-function calculateSubtotal(cart) {
-
-  return cart.reduce(function(total, item) {
-
-    return total +
-      getItemPrice(item) *
-      getItemQuantity(item);
-
-  }, 0);
-
-}
-
-
-function getShipping() {
-
-  const selected =
-    document.querySelector('input[name="shipping"]:checked');
-
-  if (!selected) {
-
-    return {
-      method: "standard",
-      fee: 3.50
-    };
-
-  }
-
-  return {
-    method: selected.value,
-    fee: Number(selected.dataset.price)
-  };
-
-}
-
-
-function updateSummary() {
-
-  const cart = getCurrentCart();
-  const shipping = getShipping();
-  const subtotal = calculateSubtotal(cart);
+  const shipping = needsShipping ? selectedShipping() : { method: "", fee: 0 };
+  const subtotal = subtotalFor(cart);
   const total = subtotal + shipping.fee;
-
-  const summary =
-    document.getElementById("summary");
-
+  const summary = document.getElementById("summary");
 
   if (!cart.length) {
-
-    summary.innerHTML = `
-      <p>Your basket is empty.</p>
-
-      <a class="btn" href="shop.html">
-        go to shop ☘
-      </a>
-    `;
-
+    summary.innerHTML = '<p>Your basket is empty.</p><a class="btn" href="shop.html">go to shop ☘</a>';
     return;
-
   }
 
-
-  summary.innerHTML = `
-
-    ${cart.map(function(item) {
-
-      const product =
-        getProduct(item);
-
-      if (!product) return "";
-
-      const quantity =
-        getItemQuantity(item);
-
-      const price =
-        getItemPrice(item);
-
-      return `
-        <p>
-          ${product.name} × ${quantity}<br>
-          <strong>
-            £${(price * quantity).toFixed(2)}
-          </strong>
-        </p>
-      `;
-
-    }).join("")}
-
+  summary.innerHTML = cart.map(item => {
+    const product = productFor(item);
+    if (!product) return "";
+    return `<p>${product.name} × ${quantityFor(item)}<br><strong>£${(priceFor(item) * quantityFor(item)).toFixed(2)}</strong></p>`;
+  }).join("") + `
     <hr>
-
-    <p>
-      <strong>Subtotal</strong>
-      £${subtotal.toFixed(2)}
-    </p>
-
-    <p>
-      <strong>Shipping</strong>
-      £${shipping.fee.toFixed(2)}
-    </p>
-
+    <p><strong>Subtotal</strong> £${subtotal.toFixed(2)}</p>
+    <p><strong>Shipping</strong> £${shipping.fee.toFixed(2)}</p>
     <hr>
-
-    <h2>
-      £${total.toFixed(2)}
-    </h2>
-
+    <h2>£${total.toFixed(2)}</h2>
   `;
-
 }
 
+document.querySelectorAll('input[name="shipping"]').forEach(input => {
+  input.addEventListener("change", updateCheckout);
+});
 
-document
-  .querySelectorAll('input[name="shipping"]')
-  .forEach(function(input) {
+form.addEventListener("submit", async event => {
+  event.preventDefault();
 
-    input.addEventListener(
-      "change",
-      updateSummary
-    );
+  const cart = currentCart();
+  if (!cart.length) {
+    alert("Your basket is empty ☘");
+    return;
+  }
 
-  });
+  const missingProduct = cart.some(item => !productFor(item));
+  if (missingProduct) {
+    alert("One of the products could not be loaded. Please refresh and try again.");
+    return;
+  }
 
+  const needsShipping = cartNeedsShipping(cart);
+  const shipping = needsShipping
+    ? selectedShipping()
+    : { method: "", fee: 0 };
 
-updateSummary();
+  const subtotal = subtotalFor(cart);
+  const total = subtotal + shipping.fee;
+  const data = new FormData(form);
 
+  const order = {
+    customer_name: data.get("name"),
+    email: data.get("email"),
+    address: needsShipping ? data.get("address") : "",
+    city: needsShipping ? data.get("city") : "",
+    postcode: needsShipping ? data.get("postcode") : "",
+    shipping_method: shipping.method,
+    shipping_company: needsShipping ? data.get("shippingCompany") : "",
+    requires_shipping: needsShipping,
+    items: cart.map(item => {
+      const product = productFor(item);
+      return {
+        id: item.id,
+        name: product.name,
+        type: product.type || "physical",
+        price: priceFor(item),
+        qty: quantityFor(item)
+      };
+    }),
+    subtotal: Number(subtotal.toFixed(2)),
+    shipping_fee: Number(shipping.fee.toFixed(2)),
+    total: Number(total.toFixed(2))
+  };
 
-document
-  .getElementById("checkoutForm")
-  .addEventListener("submit", async function(event) {
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "saving pretend order... ☘";
 
-    event.preventDefault();
+  try {
+    const response = await fetch(SAVE_ORDER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order)
+    });
 
-    const form = event.target;
-    const cart = getCurrentCart();
+    const result = await response.json();
 
-
-    if (!cart.length) {
-
-      alert("Your basket is empty ☘");
-
-      return;
-
+    if (!response.ok) {
+      throw new Error(result.error || "Order could not be saved.");
     }
 
+    localStorage.removeItem("qoolbieCart");
 
-    const shipping =
-      getShipping();
+    document.querySelector(".checkout").innerHTML = `
+      <div class="card success">
+        <div>🐨💤☘️</div>
+        <h2>Pretend order received!</h2>
+        <p>Your test order was saved successfully.</p>
+        <p>Products: £${subtotal.toFixed(2)}</p>
+        <p>Shipping: £${shipping.fee.toFixed(2)}</p>
+        <p><strong>Total: £${total.toFixed(2)}</strong></p>
+        <p>This is only a test. No payment was taken and no download has been delivered.</p>
+        <a class="btn" href="index.html">back to qoolbie</a>
+      </div>
+    `;
+  } catch (error) {
+    console.error(error);
+    alert("Sorry! The test order could not be saved. Please try again.");
+    button.disabled = false;
+    button.textContent = "place pretend order ☘";
+  }
+});
 
-    const subtotal =
-      calculateSubtotal(cart);
-
-    const total =
-      subtotal + shipping.fee;
-
-    const formData =
-      new FormData(form);
-
-
-    const order = {
-
-      customer_name:
-        formData.get("name"),
-
-      email:
-        formData.get("email"),
-
-      address:
-        formData.get("address"),
-
-      city:
-        formData.get("city"),
-
-      postcode:
-        formData.get("postcode"),
-
-      shipping_method:
-        shipping.method,
-
-      shipping_company:
-        formData.get("shippingCompany"),
-
-      items:
-        cart,
-
-      subtotal:
-        Number(subtotal.toFixed(2)),
-
-      shipping_fee:
-        Number(shipping.fee.toFixed(2)),
-
-      total:
-        Number(total.toFixed(2))
-
-    };
-
-
-    const button =
-      form.querySelector(
-        "button[type='submit']"
-      );
-
-
-    button.disabled = true;
-
-    button.textContent =
-      "saving order... ☘";
-
-
-    try {
-
-      const response =
-        await fetch(
-          SAVE_ORDER_URL,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify(order)
-          }
-        );
-
-
-      const result =
-        await response.json();
-
-
-      if (!response.ok) {
-
-        console.error(
-          "Order error:",
-          result
-        );
-
-        throw new Error(
-          result.error ||
-          "Order could not be saved."
-        );
-
-      }
-
-
-      localStorage.removeItem(
-        "qoolbieCart"
-      );
-
-
-      document.querySelector(
-        ".checkout"
-      ).innerHTML = `
-
-        <div class="card success">
-
-          <div>🐨💤☘️</div>
-
-          <h2>Order received!</h2>
-
-          <p>
-            Yuyuhoon has safely saved
-            your pretend order.
-          </p>
-
-          <p>
-            Shipping:
-            ${shipping.method}
-            with
-            ${formData.get("shippingCompany")}
-          </p>
-
-          <p>
-            Products:
-            £${subtotal.toFixed(2)}
-          </p>
-
-          <p>
-            Shipping:
-            £${shipping.fee.toFixed(2)}
-          </p>
-
-          <p>
-            <strong>
-              Total:
-              £${total.toFixed(2)}
-            </strong>
-          </p>
-
-          <a
-            class="btn"
-            href="index.html"
-          >
-            back to qoolbie
-          </a>
-
-        </div>
-
-      `;
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "Sorry! The test order could not be saved."
-      );
-
-      button.disabled = false;
-
-      button.textContent =
-        "place pretend order ☘";
-
-    }
-
-  });
-
+updateCartCount();
+updateCheckout();
 </script>
 
 </body>
