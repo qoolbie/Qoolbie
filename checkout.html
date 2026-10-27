@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <nav>
   <a class="logo" href="index.html">q<span>oo</span>lbie</a>
   <div>
@@ -19,58 +19,32 @@
 <main class="page">
   <span class="pill">☘ sleepy checkout</span>
   <h1>checkout</h1>
-
   <div class="checkout">
     <form id="checkoutForm" class="card">
       <h2>Your details</h2>
-
-      <label>
-        Name
+      <label>Name
         <input required name="name" placeholder="Your name">
       </label>
-
-      <label>
-        Email
+      <label>Email
         <input required type="email" name="email" placeholder="you@example.com">
       </label>
 
       <section id="shippingSection">
         <h2>Where should we send it?</h2>
-
-        <label>
-          Address
+        <label>Address
           <textarea name="address" placeholder="Shipping address"></textarea>
         </label>
-
-        <label>
-          City
+        <label>City
           <input name="city" placeholder="City">
         </label>
-
-        <label>
-          Postcode
+        <label>Postcode
           <input name="postcode" placeholder="Postcode">
         </label>
-
         <h2>Shipping</h2>
-
-        <label>
-          <input type="radio" name="shipping" value="standard" data-price="3.50" checked>
-          Standard — £3.50
-        </label>
-
-        <label>
-          <input type="radio" name="shipping" value="tracked" data-price="5.50">
-          Tracked — £5.50
-        </label>
-
-        <label>
-          <input type="radio" name="shipping" value="express" data-price="8.50">
-          Express — £8.50
-        </label>
-
-        <label>
-          Shipping company
+        <label><input type="radio" name="shipping" value="standard" data-price="3.50" checked> Standard — £3.50</label>
+        <label><input type="radio" name="shipping" value="tracked" data-price="5.50"> Tracked — £5.50</label>
+        <label><input type="radio" name="shipping" value="express" data-price="8.50"> Express — £8.50</label>
+        <label>Shipping company
           <select name="shippingCompany">
             <option value="">Choose a company</option>
             <option value="Royal Mail">Royal Mail</option>
@@ -80,97 +54,73 @@
         </label>
       </section>
 
-      <p id="deliveryNote" class="notice"></p>
-
-      <p class="notice">
-        ☘ This is a test checkout. Don't enter real payment or card details.
-      </p>
-
-      <label>
-        <input required type="checkbox" name="testOrder">
-        I understand this is a pretend/test order.
-      </label>
-
+      <p id="deliveryNote" class="notice">Loading basket… ☘</p>
+      <p class="notice">☘ This is a test checkout. Don't enter real payment or card details.</p>
+      <label><input required type="checkbox" name="testOrder"> I understand this is a pretend/test order.</label>
       <button class="btn" type="submit">place pretend order ☘</button>
     </form>
 
     <aside class="card">
       <h2>Order summary</h2>
-      <div id="summary"></div>
+      <div id="summary">Loading basket…</div>
     </aside>
   </div>
 </main>
 
 <footer>qoolbie ☘</footer>
-
-<script src="script.js?v=9"></script>
+<script src="script.js?v=10"></script>
 <script>
-const SAVE_ORDER_URL =
-  "https://fnvmtifspfdlclekbhcw.supabase.co/functions/v1/save-order";
-
+const SAVE_ORDER_URL = "https://fnvmtifspfdlclekbhcw.supabase.co/functions/v1/save-order";
 const form = document.getElementById("checkoutForm");
 const shippingSection = document.getElementById("shippingSection");
 const deliveryNote = document.getElementById("deliveryNote");
+let productsReady = false;
 
-function currentCart() {
-  return getCart();
-}
-
-function productFor(item) {
-  return PRODUCTS.find(product => product.id === item.id);
-}
-
+function cartNow() { return getCart(); }
+function productFor(item) { return PRODUCTS.find(p => p.id === item.id); }
 function priceFor(item) {
-  const product = productFor(item);
-  return product ? Number(product.price) || 0 : 0;
+  const p = productFor(item);
+  return p ? Number(p.price) || 0 : 0;
 }
-
-function quantityFor(item) {
-  return Number(item.qty) || 0;
-}
-
-function cartNeedsShipping(cart) {
+function qtyFor(item) { return Number(item.qty) || 0; }
+function needsShipping(cart) {
   return cart.some(item => {
-    const product = productFor(item);
-    return product && product.type !== "digital";
+    const p = productFor(item);
+    return p && p.type !== "digital";
   });
 }
-
-function selectedShipping() {
+function shippingChoice() {
   const input = document.querySelector('input[name="shipping"]:checked');
-  return input
-    ? { method: input.value, fee: Number(input.dataset.price) }
-    : { method: "standard", fee: 3.50 };
+  return input ? {method: input.value, fee: Number(input.dataset.price)} : {method: "standard", fee: 3.5};
 }
-
 function subtotalFor(cart) {
-  return cart.reduce(
-    (sum, item) => sum + priceFor(item) * quantityFor(item),
-    0
-  );
+  return cart.reduce((sum, item) => sum + priceFor(item) * qtyFor(item), 0);
 }
-
 function updateCheckout() {
-  const cart = currentCart();
-  const needsShipping = cartNeedsShipping(cart);
+  const cart = cartNow();
+  if (!productsReady) {
+    deliveryNote.textContent = "Loading products… ☘";
+    document.getElementById("summary").textContent = "Loading basket…";
+    return;
+  }
 
-  shippingSection.hidden = !needsShipping;
+  const missing = cart.some(item => !productFor(item));
+  if (missing) {
+    deliveryNote.textContent = "A product is still loading. Please wait a moment.";
+    return;
+  }
 
+  const physical = needsShipping(cart);
+  shippingSection.style.display = physical ? "" : "none";
   shippingSection.querySelectorAll("input, select, textarea").forEach(field => {
-    const requiredField =
-      field.name === "address" ||
-      field.name === "city" ||
-      field.name === "postcode" ||
-      field.name === "shippingCompany";
-
-    field.required = needsShipping && requiredField;
+    field.required = physical && ["address", "city", "postcode", "shippingCompany"].includes(field.name);
   });
 
-  deliveryNote.textContent = needsShipping
-    ? "📦 This basket includes physical products. Shipping is required. Digital items will be included too."
+  deliveryNote.textContent = physical
+    ? "📦 This basket contains physical products, so shipping is required."
     : "💻 Digital-only basket! No shipping address or shipping fee is needed.";
 
-  const shipping = needsShipping ? selectedShipping() : { method: "", fee: 0 };
+  const shipping = physical ? shippingChoice() : {method: "", fee: 0};
   const subtotal = subtotalFor(cart);
   const total = subtotal + shipping.fee;
   const summary = document.getElementById("summary");
@@ -181,42 +131,32 @@ function updateCheckout() {
   }
 
   summary.innerHTML = cart.map(item => {
-    const product = productFor(item);
-    if (!product) return "";
-    return `<p>${product.name} × ${quantityFor(item)}<br><strong>£${(priceFor(item) * quantityFor(item)).toFixed(2)}</strong></p>`;
-  }).join("") + `
-    <hr>
-    <p><strong>Subtotal</strong> £${subtotal.toFixed(2)}</p>
-    <p><strong>Shipping</strong> £${shipping.fee.toFixed(2)}</p>
-    <hr>
-    <h2>£${total.toFixed(2)}</h2>
-  `;
+    const p = productFor(item);
+    return `<p>${p.name} × ${qtyFor(item)}<br><strong>£${(priceFor(item) * qtyFor(item)).toFixed(2)}</strong></p>`;
+  }).join("") + `<hr><p><strong>Subtotal</strong> £${subtotal.toFixed(2)}</p><p><strong>Shipping</strong> £${shipping.fee.toFixed(2)}</p><hr><h2>£${total.toFixed(2)}</h2>`;
 }
 
-document.querySelectorAll('input[name="shipping"]').forEach(input => {
-  input.addEventListener("change", updateCheckout);
-});
+document.querySelectorAll('input[name="shipping"]').forEach(input => input.addEventListener("change", updateCheckout));
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
+  if (!productsReady) {
+    alert("Products are still loading. Please wait a moment and try again.");
+    return;
+  }
 
-  const cart = currentCart();
+  const cart = cartNow();
   if (!cart.length) {
     alert("Your basket is empty ☘");
     return;
   }
-
-  const missingProduct = cart.some(item => !productFor(item));
-  if (missingProduct) {
-    alert("One of the products could not be loaded. Please refresh and try again.");
+  if (cart.some(item => !productFor(item))) {
+    alert("A product could not be loaded. Please refresh and try again.");
     return;
   }
 
-  const needsShipping = cartNeedsShipping(cart);
-  const shipping = needsShipping
-    ? selectedShipping()
-    : { method: "", fee: 0 };
-
+  const physical = needsShipping(cart);
+  const shipping = physical ? shippingChoice() : {method: "", fee: 0};
   const subtotal = subtotalFor(cart);
   const total = subtotal + shipping.fee;
   const data = new FormData(form);
@@ -224,21 +164,15 @@ form.addEventListener("submit", async event => {
   const order = {
     customer_name: data.get("name"),
     email: data.get("email"),
-    address: needsShipping ? data.get("address") : "",
-    city: needsShipping ? data.get("city") : "",
-    postcode: needsShipping ? data.get("postcode") : "",
+    address: physical ? data.get("address") : "",
+    city: physical ? data.get("city") : "",
+    postcode: physical ? data.get("postcode") : "",
     shipping_method: shipping.method,
-    shipping_company: needsShipping ? data.get("shippingCompany") : "",
-    requires_shipping: needsShipping,
+    shipping_company: physical ? data.get("shippingCompany") : "",
+    requires_shipping: physical,
     items: cart.map(item => {
-      const product = productFor(item);
-      return {
-        id: item.id,
-        name: product.name,
-        type: product.type || "physical",
-        price: priceFor(item),
-        qty: quantityFor(item)
-      };
+      const p = productFor(item);
+      return {id: item.id, name: p.name, type: p.type || "physical", price: priceFor(item), qty: qtyFor(item)};
     }),
     subtotal: Number(subtotal.toFixed(2)),
     shipping_fee: Number(shipping.fee.toFixed(2)),
@@ -252,30 +186,23 @@ form.addEventListener("submit", async event => {
   try {
     const response = await fetch(SAVE_ORDER_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(order)
     });
-
     const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error || "Order could not be saved.");
-    }
+    if (!response.ok) throw new Error(result.error || "Order could not be saved.");
 
     localStorage.removeItem("qoolbieCart");
-
     document.querySelector(".checkout").innerHTML = `
       <div class="card success">
         <div>🐨💤☘️</div>
         <h2>Pretend order received!</h2>
-        <p>Your test order was saved successfully.</p>
+        <p>Your test order was saved. No payment was taken and no download was delivered.</p>
         <p>Products: £${subtotal.toFixed(2)}</p>
         <p>Shipping: £${shipping.fee.toFixed(2)}</p>
         <p><strong>Total: £${total.toFixed(2)}</strong></p>
-        <p>This is only a test. No payment was taken and no download has been delivered.</p>
         <a class="btn" href="index.html">back to qoolbie</a>
-      </div>
-    `;
+      </div>`;
   } catch (error) {
     console.error(error);
     alert("Sorry! The test order could not be saved. Please try again.");
@@ -284,9 +211,18 @@ form.addEventListener("submit", async event => {
   }
 });
 
-updateCartCount();
-updateCheckout();
+async function initialiseCheckout() {
+  try {
+    await loadProducts();
+    productsReady = true;
+    updateCartCount();
+    updateCheckout();
+  } catch (error) {
+    console.error(error);
+    deliveryNote.textContent = "Couldn't load products. Please refresh and try again.";
+  }
+}
+initialiseCheckout();
 </script>
-
 </body>
 </html>
