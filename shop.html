@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,13 +6,53 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clover Shop — qoolbie</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .shop-section { margin: 30px 0 42px; }
+    .shop-section > h2 { margin-bottom: 8px; }
+    .shop-section-note, .category-description { opacity: .75; }
+    .category-preview { margin: 28px 0 36px; }
+    .category-preview > h3 { margin-bottom: 14px; }
+    .shop-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+    .shop-grid .product-card { min-width: 0; }
+    .shop-grid .product-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+    .shop-grid .product-card h3 {
+      font-size: .95rem;
+      line-height: 1.35;
+      margin: 8px 0 4px;
+    }
+    .shop-grid .product-card button {
+      max-width: 100%;
+      padding: 8px;
+      font-size: .85rem;
+    }
+    .product-card-link { color: inherit; text-decoration: none; }
+    .product-price { margin: 4px 0 10px; }
+    .more-category-link {
+      display: inline-block;
+      margin-top: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .shop-empty { opacity: .7; }
+    @media (min-width: 850px) {
+      .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
 </head>
-
 <body>
-
 <nav>
   <a class="logo" href="index.html">q<span>oo</span>lbie</a>
-
   <div>
     <a href="yuyuhoon.html">Yuyuhoon</a>
     <a href="shop.html">Clover Shop</a>
@@ -23,19 +64,12 @@
 
 <main class="page">
   <span class="pill">☘ yuyu's little shop</span>
-
   <h1>clover shop</h1>
-
-  <p class="subtitle">
-    Tiny treasures from qoolbie village.
-  </p>
-
-  <div id="products" class="products"></div>
+  <p class="subtitle">Tiny treasures from qoolbie village.</p>
+  <div id="products"></div>
 </main>
 
 <footer>qoolbie ☘</footer>
-
 <script src="script.js"></script>
-
 </body>
 </html>
