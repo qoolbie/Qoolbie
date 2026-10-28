@@ -5,6 +5,6 @@
   "description": "A sleepy Qoolbie clover wallpaper - test digital product.",
   "details": "Digital download test. No physical item will be shipped.",
   "type": "digital",
-  "digitalFile": "",
+  "category": "2026-10-28-wall-paper.md",
   "available": true
 }
