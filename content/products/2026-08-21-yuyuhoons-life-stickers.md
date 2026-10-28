@@ -3,5 +3,7 @@
   "price": 8,
   "image": "/media/IMG_1332.jpeg",
   "description": "A piece of stickers, with yuyuhoon’s life, his favourite things, clover, egg waffles, sleeping",
+  "type": "physical",
+  "category": "2026-10-28-stickers.md",
   "available": true
 }
