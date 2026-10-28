@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Category — qoolbie</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+    .category-grid .product-card { min-width: 0; }
+    .category-grid .product-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+    .category-grid .product-card h3 {
+      font-size: .95rem;
+      line-height: 1.35;
+      margin: 8px 0 4px;
+    }
+    .category-grid .product-card button {
+      max-width: 100%;
+      padding: 8px;
+      font-size: .85rem;
+    }
+    .product-card-link { color: inherit; text-decoration: none; }
+    .product-price { margin: 4px 0 10px; }
+    .back-link { display: inline-block; margin: 18px 0; }
+    @media (min-width: 850px) {
+      .category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body data-page="category">
+<nav>
+  <a class="logo" href="index.html">q<span>oo</span>lbie</a>
+  <div>
+    <a href="yuyuhoon.html">Yuyuhoon</a>
+    <a href="shop.html">Clover Shop</a>
+    <a href="village.html">Village</a>
+    <a href="stories.html">Stories</a>
+    <a href="cart.html">Cart <span class="cart-count">0</span></a>
+  </div>
+</nav>
+
+<main class="page">
+  <a class="back-link" href="shop.html">← Back to Clover Shop</a>
+  <span class="pill">☘ find your favourite</span>
+  <h1 id="category-title">Little treasures</h1>
+  <p id="category-description" class="subtitle"></p>
+  <div id="products" class="category-grid"></div>
+</main>
+
+<footer>qoolbie ☘</footer>
+<script src="script.js"></script>
+</body>
+</html>
