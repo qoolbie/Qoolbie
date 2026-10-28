@@ -1,37 +1,73 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Product — qoolbie</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    #product-detail {
+      max-width: 900px;
+      margin: 30px auto;
+    }
+
+    #product-detail img {
+      display: block;
+      width: 100%;
+      max-width: 420px;
+      max-height: 480px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 16px;
+      margin: 20px auto;
+    }
+
+    #product-detail h1 {
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      margin: 20px 0 10px;
+    }
+
+    #product-detail p {
+      line-height: 1.7;
+    }
+
+    #product-detail .product-price {
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    #product-detail button {
+      padding: 12px 20px;
+      margin-top: 12px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin: 12px 0;
+    }
+  </style>
 </head>
-
 <body>
-
 <nav>
   <a class="logo" href="index.html">q<span>oo</span>lbie</a>
-
   <div>
     <a href="yuyuhoon.html">Yuyuhoon</a>
     <a href="shop.html">Clover Shop</a>
     <a href="village.html">Village</a>
     <a href="stories.html">Stories</a>
-    <a href="cart.html">
-      Cart <span class="cart-count">0</span>
-    </a>
+    <a href="cart.html">Cart <span class="cart-count">0</span></a>
   </div>
 </nav>
 
 <main class="page">
-
-  <div id="product-detail"></div>
-
+  <a class="back-link" href="shop.html">← Back to Clover Shop</a>
+  <div id="product-detail">
+    <p>Loading your little treasure… ☘️</p>
+  </div>
 </main>
 
 <footer>qoolbie ☘</footer>
-
 <script src="script.js"></script>
-
 </body>
 </html>
