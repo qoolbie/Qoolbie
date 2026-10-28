@@ -1074,3 +1074,108 @@ footer {
     font-size: 0.85rem;
   }
 }
+/* =========================
+   QOOLBIE IMAGE & CARD FIX
+   ========================= */
+
+/* SHOP: three cards that fill the row */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 24px;
+}
+
+.shop-grid .product-card {
+  width: 100%;
+  min-width: 0;
+  padding: 18px;
+  background: #fffdf8;
+  border: 2px solid #eee5d6;
+  border-radius: 24px;
+  box-shadow: 5px 6px 0 #eee5d6;
+}
+
+.shop-grid .product-card-link {
+  display: block;
+}
+
+.shop-grid .product-card img {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+.shop-grid .product-card h3 {
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.shop-grid .product-card button {
+  width: 100%;
+}
+
+/* STORIES: keep story pictures within the page */
+#stories .story-card img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 260px;
+  object-fit: contain;
+  margin: 12px auto;
+  border-radius: 18px;
+}
+
+/* INDIVIDUAL STORY: limit the large picture */
+#story-detail img {
+  display: block;
+  width: 100%;
+  max-width: 700px;
+  max-height: 500px;
+  height: auto;
+  object-fit: contain;
+  margin: 20px auto;
+  border-radius: 18px;
+}
+
+/* PRODUCT DETAIL: keep its image sensible */
+#product-detail img {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  max-height: 480px;
+  height: auto;
+  object-fit: contain;
+  margin: 20px auto;
+  border-radius: 18px;
+}
+
+/* iPad and smaller screens */
+@media (max-width: 900px) {
+  .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .shop-grid .product-card img {
+    height: 200px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .shop-grid .product-card {
+    padding: 10px;
+  }
+
+  .shop-grid .product-card img {
+    height: 145px;
+  }
+}
