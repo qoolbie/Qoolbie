@@ -5,6 +5,31 @@ media:
   categories: [image, document, compressed]
 
 content:
+  - name: categories
+    label: Categories
+    type: collection
+    path: content/categories
+    format: json
+    fields:
+      - name: name
+        label: Category Name
+        type: string
+      - name: type
+        label: Main Product Type
+        type: select
+        options:
+          values:
+            - name: physical
+              label: Physical
+            - name: digital
+              label: Digital
+      - name: description
+        label: Category Description
+        type: text
+      - name: image
+        label: Category Picture
+        type: image
+
   - name: products
     label: Products
     type: collection
@@ -40,6 +65,15 @@ content:
               label: Physical
             - name: digital
               label: Digital
+
+      - name: category
+        label: Product Category
+        type: reference
+        options:
+          collection: categories
+          search: "name"
+          value: "{name}"
+          label: "{name}"
 
       - name: digitalFile
         label: Digital File
