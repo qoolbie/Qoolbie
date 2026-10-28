@@ -997,3 +997,80 @@ footer {
   right: 25px;
   top: 35px;
 }
+/* =========================
+   SHOP PRODUCT CARD FIX
+   ========================= */
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.product {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.product-img {
+  width: 100%;
+  height: 260px;
+  flex-shrink: 0;
+}
+
+.product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product h2 {
+  margin-top: 16px;
+  line-height: 1.4;
+}
+
+.product button {
+  margin-top: auto;
+}
+
+/* iPad and smaller screens */
+@media (max-width: 900px) {
+  .products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .product-img {
+    height: 220px;
+  }
+}
+
+/* Phones */
+@media (max-width: 480px) {
+  .products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .product {
+    padding: 12px;
+  }
+
+  .product-img {
+    height: 160px;
+  }
+
+  .product h2 {
+    font-size: 1rem;
+  }
+
+  .product button {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+}
